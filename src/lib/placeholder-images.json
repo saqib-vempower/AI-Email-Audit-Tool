@@ -1,3 +1,16 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "hero-dashboard",
+      "description": "A clean, modern education dashboard showing analytics and email scores.",
+      "imageUrl": "https://picsum.photos/seed/edumail-hero/1200/800",
+      "imageHint": "modern dashboard analytics"
+    },
+    {
+      "id": "feature-ai",
+      "description": "Conceptual image of AI analyzing text.",
+      "imageUrl": "https://picsum.photos/seed/ai-analysis/600/400",
+      "imageHint": "artificial intelligence analysis"
+    }
+  ]
 }
