@@ -10,9 +10,7 @@ import {
   UserCircle, 
   ShieldCheck,
   Mail,
-  Heart,
-  CheckCircle2,
-  AlertCircle
+  ClipboardCheck
 } from "lucide-react"
 
 import {
@@ -32,14 +30,14 @@ const items = [
     icon: LayoutDashboard,
   },
   {
+    title: "Audit Dashboard",
+    url: "/dashboard/audit",
+    icon: ClipboardCheck,
+  },
+  {
     title: "Email Sandbox",
     url: "/dashboard/sandbox",
     icon: SearchCode,
-  },
-  {
-    title: "Team Scorecards",
-    url: "/dashboard/scorecards",
-    icon: BarChart3,
   },
   {
     title: "Advisor Portal",
