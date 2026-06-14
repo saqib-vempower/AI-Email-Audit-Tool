@@ -1,4 +1,3 @@
-
 "use client"
 
 import Link from "next/link"
@@ -79,7 +78,7 @@ export default function LandingPage() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-300">
               <Button size="lg" asChild className="h-16 px-10 text-lg font-bold bg-primary hover:bg-primary/90 shadow-xl shadow-primary/20 rounded-full group">
                 <Link href="/signup" className="flex items-center gap-2">
-                  Start Your Free Trial <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                  Get Started Now <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
                 </Link>
               </Button>
               <Button size="lg" variant="outline" asChild className="h-16 px-10 text-lg font-bold border-2 rounded-full">
@@ -172,7 +171,7 @@ export default function LandingPage() {
               <div className="relative z-10 space-y-6">
                 <h2 className="text-4xl lg:text-6xl font-black text-white tracking-tight">Ready to transform your <br />student experience?</h2>
                 <p className="text-xl text-primary-foreground/60 max-w-xl mx-auto">
-                  Start your 14-day free trial. No credit card required. Join 500+ education leaders today.
+                  Join 500+ education leaders today and start delivering excellence in every interaction.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center pt-6">
                   <Button size="lg" asChild className="bg-accent hover:bg-accent/90 text-white font-black h-16 px-10 rounded-full">

@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState } from "react"
@@ -82,7 +81,7 @@ export default function SignupPage() {
             <form onSubmit={handleSignup}>
               <CardHeader>
                 <CardTitle className="text-xl">Create your account</CardTitle>
-                <CardDescription>Start your 14-day free trial today.</CardDescription>
+                <CardDescription>Enter your details below to get started.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
