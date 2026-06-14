@@ -1,40 +1,45 @@
 'use server';
 /**
  * @fileOverview This file implements the Genkit flow for the Email Analysis Sandbox feature.
- * It allows team leads to paste email text and receive instant evaluation and real-time feedback
- * based on grammar, tone, accuracy, empathy, and compliance.
- *
- * - emailAnalysisSandbox - A function that handles the email analysis process.
- * - EmailAnalysisSandboxInput - The input type for the emailAnalysisSandbox function.
- * - EmailAnalysisSandboxOutput - The return type for the emailAnalysisSandbox function.
+ * It allows team leads to paste email text and receive instant evaluation based on a 10-parameter rubric.
  */
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+
+const EvaluationParameterSchema = z.object({
+  score: z.number().describe('Score for this parameter (max weight value).'),
+  maxScore: z.number().describe('The weightage/max possible score for this parameter.'),
+  feedback: z.string().describe('Detailed feedback explaining the score.'),
+  isFatal: z.boolean().optional().describe('Whether this is a fatal parameter (Grammar/Tone or Resolution).'),
+});
+
+const EmailAnalysisSandboxOutputSchema = z.object({
+  overallFeedback: z.string().describe('General summary of the email quality.'),
+  totalScore: z.number().describe('Weighted sum of all parameter scores (0-100).'),
+  parameters: z.object({
+    politeGreeting: EvaluationParameterSchema,
+    issueRecognition: EvaluationParameterSchema,
+    structure: EvaluationParameterSchema,
+    grammarToneEmpathy: EvaluationParameterSchema,
+    correctResolution: EvaluationParameterSchema,
+    clearNextSteps: EvaluationParameterSchema,
+    timelinesSet: EvaluationParameterSchema,
+    supportChannel: EvaluationParameterSchema,
+    professionalClosing: EvaluationParameterSchema,
+    confidenceAfterReading: EvaluationParameterSchema,
+  }),
+  hasFatalError: z.boolean().describe('True if any FATAL parameter scored significantly low.'),
+});
+export type EmailAnalysisSandboxOutput = z.infer<
+  typeof EmailAnalysisSandboxOutputSchema
+>;
 
 const EmailAnalysisSandboxInputSchema = z.object({
   emailText: z.string().describe('The email text to be evaluated.'),
 });
 export type EmailAnalysisSandboxInput = z.infer<
   typeof EmailAnalysisSandboxInputSchema
->;
-
-const EmailAnalysisSandboxOutputSchema = z.object({
-  overallFeedback: z.string().describe('General feedback on the email.'),
-  grammarScore: z.number().describe('Score for grammar (0-100).'),
-  grammarFeedback: z.string().describe('Specific feedback on grammar.'),
-  toneScore: z.number().describe('Score for tone (0-100).'),
-  toneFeedback: z.string().describe('Specific feedback on tone.'),
-  accuracyScore: z.number().describe('Score for accuracy (0-100).'),
-  accuracyFeedback: z.string().describe('Specific feedback on accuracy.'),
-  empathyScore: z.number().describe('Score for empathy (0-100).'),
-  empathyFeedback: z.string().describe('Specific feedback on empathy.'),
-  complianceScore: z.number().describe('Score for compliance (0-100).'),
-  complianceFeedback:
-    z.string().describe('Specific feedback on compliance based on custom school guidelines. Assume general good practices if no specific guidelines are given.'),
-});
-export type EmailAnalysisSandboxOutput = z.infer<
-  typeof EmailAnalysisSandboxOutputSchema
 >;
 
 export async function emailAnalysisSandbox(
@@ -47,13 +52,27 @@ const prompt = ai.definePrompt({
   name: 'emailAnalysisSandboxPrompt',
   input: {schema: EmailAnalysisSandboxInputSchema},
   output: {schema: EmailAnalysisSandboxOutputSchema},
-  prompt: `You are an AI assistant specialized in evaluating emails for educational advisors. Your task is to provide a comprehensive evaluation of the provided email text based on the following criteria: grammar, tone, accuracy, empathy, and compliance. For each criterion, provide a score from 0 to 100 and specific feedback. Finally, provide overall feedback on the email.
+  prompt: `You are an AI assistant specialized in evaluating emails for educational advisors at Excellerate. 
+Evaluate the provided email text strictly against the following 10 parameters. 
 
-**Custom School Guidelines for Compliance:** Assume general good practices for educational communication compliance, such as avoiding discriminatory language, ensuring privacy of student information, maintaining professionalism, and adhering to school policies.
+--- EVALUATION RUBRIC ---
+1. Polite Greeting & Person-Focused Opening (Weight: 5): Email starts with Hello/Dear + name. Thanks the person and introduces topic. No abrupt starts.
+2. Issue Recognition in First Lines (Weight: 15): First paragraph clearly restates the exact reason for contact.
+3. Clear & Easy-to-Follow Structure (Weight: 10): Organized into short paragraphs/bullets. One topic per section.
+4. Grammar, Tone & Empathy (FATAL) (Weight: 15): No spelling/grammar errors. Professional, courteous, no blaming or sarcasm.
+5. Correct Resolution / Policy (FATAL) (Weight: 15): Accurate info matching university policy. No guessing.
+6. Clear Next Steps (Weight: 10): Clearly states required actions and who performs them.
+7. Timelines Set (Weight: 10): Specific timeframes included (e.g., 48 hours). Avoids "soon" or "later".
+8. Correct Support Channel (Weight: 5): Shares correct portal section, email ID, or escalation route.
+9. Professional Closing & Signature (Weight: 5): Ends politely with name, role, organization, and team.
+10. Confidence After Reading (Weight: 10): Person clearly understands status, next steps, and timelines without needing a follow-up.
 
-Evaluate the following email:
+--- INSTRUCTIONS ---
+- For each parameter, provide a score up to its specified weight.
+- Parameters 4 and 5 are FATAL. If they score below 50% of their weight, set hasFatalError to true.
+- Calculate totalScore as the sum of all individual scores.
 
-Email Text:
+Email Text to Evaluate:
 {{{emailText}}}`,
 });
 

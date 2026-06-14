@@ -1,89 +1,46 @@
 'use server';
 /**
- * @fileOverview This file implements a Genkit flow for automatically evaluating advisor emails.
- *
- * - evaluateEmail - A function that handles the email evaluation process.
- * - AutomatedEmailEvaluationInput - The input type for the evaluateEmail function.
- * - AutomatedEmailEvaluationOutput - The return type for the evaluateEmail function.
+ * @fileOverview This file implements a Genkit flow for automatically evaluating advisor emails based on the 10-parameter rubric.
  */
 
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 
-const AutomatedEmailEvaluationInputSchema = z.object({
-  emailContent: z
-    .string()
-    .describe(
-      'The full content of the advisor email to be evaluated, including subject, body, and signature.'
-    ),
-  schoolGuidelines: z
-    .string()
-    .describe(
-      'A detailed description of the school\'s guidelines for email communication, covering aspects like grammar, tone, accuracy, empathy, and compliance. This will be used as the primary rubric for evaluation.'
-    ),
+const EvaluationParameterSchema = z.object({
+  score: z.number(),
+  maxScore: z.number(),
+  feedback: z.string(),
+  isFatal: z.boolean().optional(),
 });
-export type AutomatedEmailEvaluationInput = z.infer<
-  typeof AutomatedEmailEvaluationInputSchema
->;
 
 const AutomatedEmailEvaluationOutputSchema = z.object({
-  grammar: z.object({
-    score: z
-      .number()
-      .min(1)
-      .max(5)
-      .describe('Grammar score (1-5, 5 being excellent).'),
-    feedback: z
-      .string()
-      .describe('Detailed feedback on grammar and spelling.'),
+  overallRating: z.string().describe('Qualitative rating (Excellent, Good, Needs Improvement, Critical).'),
+  overallSuggestions: z.string(),
+  totalScore: z.number(),
+  hasFatalError: z.boolean(),
+  parameters: z.object({
+    politeGreeting: EvaluationParameterSchema,
+    issueRecognition: EvaluationParameterSchema,
+    structure: EvaluationParameterSchema,
+    grammarToneEmpathy: EvaluationParameterSchema,
+    correctResolution: EvaluationParameterSchema,
+    clearNextSteps: EvaluationParameterSchema,
+    timelinesSet: EvaluationParameterSchema,
+    supportChannel: EvaluationParameterSchema,
+    professionalClosing: EvaluationParameterSchema,
+    confidenceAfterReading: EvaluationParameterSchema,
   }),
-  tone: z.object({
-    score: z
-      .number()
-      .min(1)
-      .max(5)
-      .describe('Tone score (1-5, 5 being appropriate and professional).'),
-    feedback: z.string().describe('Detailed feedback on the email\'s tone.'),
-  }),
-  accuracy: z.object({
-    score: z
-      .number()
-      .min(1)
-      .max(5)
-      .describe('Accuracy score (1-5, 5 being factually correct).'),
-    feedback: z
-      .string()
-      .describe('Detailed feedback on the factual accuracy of the information.'),
-  }),
-  empathy: z.object({
-    score: z
-      .number()
-      .min(1)
-      .max(5)
-      .describe('Empathy score (1-5, 5 being highly empathetic).'),
-    feedback: z
-      .string()
-      .describe('Detailed feedback on the level of empathy conveyed.'),
-  }),
-  compliance: z.object({
-    score: z
-      .number()
-      .min(1)
-      .max(5)
-      .describe('Compliance score (1-5, 5 being fully compliant).'),
-    feedback: z
-      .string()
-      .describe('Detailed feedback on adherence to school guidelines and policies.'),
-  }),
-  overallRating: z
-    .string()
-    .describe('An overall qualitative rating (e.g., Excellent, Good, Needs Improvement).'),
-  overallSuggestions: z
-    .string()
-    .describe('General suggestions for improving email quality.'),
 });
 export type AutomatedEmailEvaluationOutput = z.infer<
   typeof AutomatedEmailEvaluationOutputSchema
+>;
+
+const AutomatedEmailEvaluationInputSchema = z.object({
+  emailContent: z.string(),
+  schoolGuidelines: z.string().describe('Custom school guidelines to consider alongside the core rubric.'),
+});
+export type AutomatedEmailEvaluationInput = z.infer<
+  typeof AutomatedEmailEvaluationInputSchema
 >;
 
 export async function evaluateEmail(
@@ -96,21 +53,28 @@ const automatedEmailEvaluationPrompt = ai.definePrompt({
   name: 'automatedEmailEvaluationPrompt',
   input: { schema: AutomatedEmailEvaluationInputSchema },
   output: { schema: AutomatedEmailEvaluationOutputSchema },
-  prompt: `You are an expert email evaluator for an educational institution. Your task is to rigorously assess advisor emails based on predefined school guidelines.
+  prompt: `You are an expert evaluator for advisor communications at Excellerate. 
+Evaluate the provided 'Email Content' based on the 10-parameter rubric and the provided 'School Guidelines'.
 
-Evaluate the provided 'Email Content' against the following 'School Guidelines'. For each category (Grammar, Tone, Accuracy, Empathy, Compliance), assign a score from 1 to 5 (where 5 is excellent and 1 is poor) and provide specific, actionable feedback.
-Finally, provide an overall qualitative rating and general suggestions for improvement.
+--- CORE RUBRIC ---
+1. Polite Greeting & Person-Focused Opening (5 pts)
+2. Issue Recognition in First Lines (15 pts)
+3. Clear & Easy-to-Follow Structure (10 pts)
+4. Grammar, Tone & Empathy (FATAL) (15 pts)
+5. Correct Resolution / Policy (FATAL) (15 pts)
+6. Clear Next Steps (10 pts)
+7. Timelines Set (10 pts)
+8. Correct Support Channel (5 pts)
+9. Professional Closing & Signature (5 pts)
+10. Confidence After Reading (10 pts)
 
 --- SCHOOL GUIDELINES ---
 {{{schoolGuidelines}}}
 
---- EMAIL CONTENT TO EVALUATE ---
+--- EMAIL CONTENT ---
 {{{emailContent}}}
 
----
-
-Provide the evaluation in the specified JSON format, ensuring all fields are populated.
-`,
+Provide specific feedback for each parameter. If parameters 4 or 5 are failed (score < 50%), mark hasFatalError as true.`,
 });
 
 const automatedEmailEvaluationFlow = ai.defineFlow(
