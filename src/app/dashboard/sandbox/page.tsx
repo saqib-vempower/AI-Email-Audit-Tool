@@ -40,12 +40,16 @@ export default function SandboxPage() {
     try {
       const output = await emailAnalysisSandbox({ emailText })
       setResult(output)
+      toast({
+        title: "Evaluation Complete",
+        description: "Your draft has been analyzed against the 10-parameter rubric.",
+      })
     } catch (error: any) {
       console.error("Analysis failed", error)
       toast({
         variant: "destructive",
-        title: "Evaluation Service Unavailable",
-        description: "The AI model is currently experiencing high demand. Please wait a moment and try your audit again.",
+        title: "Evaluation Service Error",
+        description: error.message || "The AI service is currently unavailable. Please try again in a few moments.",
       })
     } finally {
       setLoading(false)

@@ -69,7 +69,7 @@ Evaluate the provided email text strictly against the following 10 parameters.
 
 --- INSTRUCTIONS ---
 - For each parameter, provide a score up to its specified weight.
-- Parameters 4 and 5 are FATAL. If they score below 50% of their weight, set hasFatalError to true.
+- Parameters 4 and 5 are FATAL. If they score below 50% of their weight (7.5 pts), set hasFatalError to true.
 - Calculate totalScore as the sum of all individual scores.
 
 Email Text to Evaluate:
@@ -83,7 +83,15 @@ const emailAnalysisSandboxFlow = ai.defineFlow(
     outputSchema: EmailAnalysisSandboxOutputSchema,
   },
   async input => {
-    const {output} = await prompt(input);
-    return output!;
+    try {
+      const {output} = await prompt(input);
+      if (!output) {
+        throw new Error('AI failed to generate a valid response.');
+      }
+      return output;
+    } catch (error) {
+      console.error('Genkit prompt error:', error);
+      throw error;
+    }
   }
 );
