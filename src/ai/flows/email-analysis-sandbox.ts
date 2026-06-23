@@ -50,6 +50,7 @@ export async function emailAnalysisSandbox(
 
 const prompt = ai.definePrompt({
   name: 'emailAnalysisSandboxPrompt',
+  model: 'googleai/gemini-1.5-flash',
   input: {schema: EmailAnalysisSandboxInputSchema},
   output: {schema: EmailAnalysisSandboxOutputSchema},
   prompt: `You are an AI assistant specialized in evaluating emails for educational advisors at Excellerate. 
@@ -90,7 +91,7 @@ const emailAnalysisSandboxFlow = ai.defineFlow(
       }
       return output;
     } catch (error) {
-      console.error('Genkit prompt error:', error);
+      console.error('Genkit flow error:', error);
       throw error;
     }
   }
