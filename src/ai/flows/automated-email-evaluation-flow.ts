@@ -51,7 +51,7 @@ export async function evaluateEmail(
 
 const automatedEmailEvaluationPrompt = ai.definePrompt({
   name: 'automatedEmailEvaluationPrompt',
-  model: 'googleai/gemini-1.5-flash',
+  model: 'googleai/gemini-2.5-flash',
   input: { schema: AutomatedEmailEvaluationInputSchema },
   output: { schema: AutomatedEmailEvaluationOutputSchema },
   prompt: `You are an expert evaluator for advisor communications at Excellerate. 

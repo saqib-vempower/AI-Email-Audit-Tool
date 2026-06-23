@@ -50,7 +50,7 @@ export async function emailAnalysisSandbox(
 
 const prompt = ai.definePrompt({
   name: 'emailAnalysisSandboxPrompt',
-  model: 'googleai/gemini-1.5-flash',
+  model: 'googleai/gemini-2.5-flash',
   input: {schema: EmailAnalysisSandboxInputSchema},
   output: {schema: EmailAnalysisSandboxOutputSchema},
   prompt: `You are an AI assistant specialized in evaluating emails for educational advisors at Excellerate. 
