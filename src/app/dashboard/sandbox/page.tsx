@@ -24,20 +24,29 @@ import { emailAnalysisSandbox, type EmailAnalysisSandboxOutput } from "@/ai/flow
 import { Progress } from "@/components/ui/progress"
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { useToast } from "@/hooks/use-toast"
 
 export default function SandboxPage() {
   const [emailText, setEmailText] = useState("")
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<EmailAnalysisSandboxOutput | null>(null)
+  const { toast } = useToast()
 
   const handleAnalyze = async () => {
     if (!emailText.trim()) return
     setLoading(true)
+    setResult(null)
+    
     try {
       const output = await emailAnalysisSandbox({ emailText })
       setResult(output)
-    } catch (error) {
+    } catch (error: any) {
       console.error("Analysis failed", error)
+      toast({
+        variant: "destructive",
+        title: "Evaluation Service Unavailable",
+        description: "The AI model is currently experiencing high demand. Please wait a moment and try your audit again.",
+      })
     } finally {
       setLoading(false)
     }
