@@ -10,7 +10,6 @@ import {
   BarChart3, 
   CheckCircle2, 
   ArrowRight,
-  MessageSquare,
   Users,
   Zap,
   Globe,
@@ -68,11 +67,11 @@ export default function LandingPage() {
             
             <h1 className="text-6xl lg:text-8xl font-black tracking-tighter text-primary leading-[0.9] animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-100">
               Perfect Every <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">Student Contact.</span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">Email Analysis.</span>
             </h1>
             
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-200">
-              The only automated evaluation platform built for education advisors. Ensure FERPA compliance, empathy, and accuracy in every single email.
+              The only automated evaluation platform built for education advisors. Ensure institutional policy compliance, empathy, and accuracy in every interaction.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-300">
@@ -120,8 +119,8 @@ export default function LandingPage() {
                 <CardContent className="p-10 relative z-10 flex flex-col justify-between h-full">
                   <ShieldCheck className="h-12 w-12 text-accent mb-6" />
                   <div>
-                    <h3 className="text-2xl font-bold mb-2">FERPA Compliance</h3>
-                    <p className="text-primary-foreground/70">Automatic detection of student data leaks and policy violations before they happen.</p>
+                    <h3 className="text-2xl font-bold mb-2">Policy Compliance</h3>
+                    <p className="text-primary-foreground/70">Automatic detection of privacy data leaks and institutional policy violations before they happen.</p>
                   </div>
                 </CardContent>
               </Card>
@@ -130,8 +129,8 @@ export default function LandingPage() {
                 <CardContent className="p-10 flex flex-col justify-between h-full">
                   <BarChart3 className="h-12 w-12 text-white/80 mb-6" />
                   <div>
-                    <h3 className="text-2xl font-bold mb-2">Performance Analytics</h3>
-                    <p className="text-white/80">Track individual advisor growth with longitudinal data and comparative benchmarks.</p>
+                    <h3 className="text-2xl font-bold mb-2">Audit Intelligence</h3>
+                    <p className="text-white/80">Track individual advisor growth with longitudinal data and comparative benchmarks across 10 key parameters.</p>
                   </div>
                 </CardContent>
               </Card>
@@ -140,7 +139,7 @@ export default function LandingPage() {
                 <CardContent className="p-10 flex flex-col justify-center items-center text-center h-full">
                   <Heart className="h-10 w-10 text-red-500 mb-4" />
                   <h3 className="text-xl font-bold mb-2">Empathy Scoring</h3>
-                  <p className="text-sm text-muted-foreground">AI-driven sentiment analysis ensures your tone remains supportive.</p>
+                  <p className="text-sm text-muted-foreground">AI-driven sentiment analysis ensures your tone remains supportive and professional.</p>
                 </CardContent>
               </Card>
 
@@ -148,7 +147,7 @@ export default function LandingPage() {
                 <CardContent className="p-10 flex flex-col justify-center items-center text-center h-full">
                   <CheckCircle2 className="h-10 w-10 text-green-500 mb-4" />
                   <h3 className="text-xl font-bold mb-2">Accuracy Guard</h3>
-                  <p className="text-sm text-muted-foreground">Verify program facts and deadlines against your institution's knowledge base.</p>
+                  <p className="text-sm text-muted-foreground">Verify program facts and deadlines against your institutional guidelines.</p>
                 </CardContent>
               </Card>
 
@@ -156,7 +155,7 @@ export default function LandingPage() {
                 <CardContent className="p-10 flex flex-col justify-center items-center text-center h-full">
                   <Users className="h-10 w-10 text-accent mb-4" />
                   <h3 className="text-xl font-bold mb-2">Team Sync</h3>
-                  <p className="text-sm text-muted-foreground">Easily manage permissions and roles for leads and advisors.</p>
+                  <p className="text-sm text-muted-foreground">Easily manage permissions and roles for team leads and individual advisors.</p>
                 </CardContent>
               </Card>
             </div>
@@ -169,9 +168,9 @@ export default function LandingPage() {
             <div className="bg-primary rounded-[3rem] p-12 lg:p-24 text-center space-y-10 relative overflow-hidden">
               <div className="absolute top-0 right-0 w-full h-full bg-accent/5 -skew-x-12 translate-x-1/2" />
               <div className="relative z-10 space-y-6">
-                <h2 className="text-4xl lg:text-6xl font-black text-white tracking-tight">Ready to transform your <br />student experience?</h2>
+                <h2 className="text-4xl lg:text-6xl font-black text-white tracking-tight">Ready to transform your <br />email quality assurance?</h2>
                 <p className="text-xl text-primary-foreground/60 max-w-xl mx-auto">
-                  Join 500+ education leaders today and start delivering excellence in every interaction.
+                  Join hundreds of education leaders today and start delivering excellence in every email analysis.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center pt-6">
                   <Button size="lg" asChild className="bg-accent hover:bg-accent/90 text-white font-black h-16 px-10 rounded-full">
@@ -198,7 +197,7 @@ export default function LandingPage() {
               <span className="text-xl font-black tracking-tight text-primary">EduMail <span className="text-accent">QA</span></span>
             </Link>
             <p className="text-muted-foreground max-w-xs">
-              Empowering education advisors with AI-driven insights to deliver world-class student support.
+              Empowering education advisors with AI-driven insights to deliver world-class institutional support.
             </p>
           </div>
           <div className="space-y-4">
@@ -214,7 +213,7 @@ export default function LandingPage() {
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li><Link href="#" className="hover:text-accent">Privacy Policy</Link></li>
               <li><Link href="#" className="hover:text-accent">Terms of Service</Link></li>
-              <li><Link href="#" className="hover:text-accent">FERPA Statement</Link></li>
+              <li><Link href="#" className="hover:text-accent">Institutional Statement</Link></li>
             </ul>
           </div>
         </div>
