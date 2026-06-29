@@ -1,8 +1,9 @@
+
 "use client"
 
 import * as React from "react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { 
   LayoutDashboard, 
   SearchCode, 
@@ -10,7 +11,8 @@ import {
   UserCircle, 
   ShieldCheck,
   Mail,
-  ClipboardCheck
+  ClipboardCheck,
+  LogOut
 } from "lucide-react"
 
 import {
@@ -22,6 +24,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
+import { Button } from "@/components/ui/button"
 
 const items = [
   {
@@ -48,6 +51,11 @@ const items = [
 
 export function AppSidebar() {
   const pathname = usePathname()
+  const router = useRouter()
+
+  const handleLogout = () => {
+    router.push("/")
+  }
 
   return (
     <Sidebar variant="sidebar" collapsible="icon">
@@ -81,15 +89,25 @@ export function AppSidebar() {
           ))}
         </SidebarMenu>
       </SidebarContent>
-      <SidebarFooter className="border-t border-sidebar-border p-6">
-        <div className="flex items-center gap-3 group-data-[collapsible=icon]:hidden">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-sidebar-accent">
-            <ShieldCheck className="h-4 w-4 text-accent" />
+      <SidebarFooter className="border-t border-sidebar-border p-4">
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center gap-3 group-data-[collapsible=icon]:hidden px-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-sidebar-accent">
+              <ShieldCheck className="h-4 w-4 text-accent" />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-xs font-semibold text-white">Admin Lead</span>
+              <span className="text-[10px] text-sidebar-foreground/50">Verification Mode</span>
+            </div>
           </div>
-          <div className="flex flex-col">
-            <span className="text-xs font-semibold text-white">Admin Lead</span>
-            <span className="text-[10px] text-sidebar-foreground/50">Verification Mode</span>
-          </div>
+          <Button 
+            variant="ghost" 
+            className="w-full justify-start gap-3 text-sidebar-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
+            onClick={handleLogout}
+          >
+            <LogOut className="h-4 w-4" />
+            <span className="group-data-[collapsible=icon]:hidden">Log out</span>
+          </Button>
         </div>
       </SidebarFooter>
     </Sidebar>
