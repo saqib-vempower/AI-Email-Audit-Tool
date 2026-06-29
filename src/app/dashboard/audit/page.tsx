@@ -141,14 +141,14 @@ export default function AuditDashboard() {
                           {PARAMETERS.map((p) => (
                             <div key={p.id} className="flex items-center justify-between bg-white p-3 rounded-lg border shadow-sm">
                               <div className="flex items-center gap-2">
-                                <p className="text-xs font-bold">{p.label}</p>
+                                <div className="text-xs font-bold">{p.label}</div>
                                 {p.fatal && <Badge variant="destructive" className="text-[8px] h-3 px-1">FATAL</Badge>}
                               </div>
                               <div className="flex items-center gap-2">
                                 <div className="w-24 h-1.5 bg-secondary rounded-full overflow-hidden">
                                   <div className="h-full bg-accent" style={{ width: '90%' }} />
                                 </div>
-                                <span className="text-xs font-black">{(p.avg - (Math.random() * 0.5)).toFixed(1)} / {p.weight}</span>
+                                <span className="text-xs font-black">{p.avg.toFixed(1)} / {p.weight}</span>
                               </div>
                             </div>
                           ))}

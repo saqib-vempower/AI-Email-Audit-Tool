@@ -179,12 +179,12 @@ export default function SandboxPage() {
                                 <param.icon className="h-5 w-5 text-primary" />
                               </div>
                               <div>
-                                <p className="font-bold text-sm flex items-center gap-2">
+                                <div className="font-bold text-sm flex items-center gap-2">
                                   {param.label}
                                   {param.isFatal && (
                                     <Badge variant="destructive" className="text-[10px] h-4 px-1.5 font-black uppercase">Fatal</Badge>
                                   )}
-                                </p>
+                                </div>
                                 <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Weight: {param.data.maxScore}</p>
                               </div>
                             </div>
