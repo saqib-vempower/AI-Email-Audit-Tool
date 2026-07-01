@@ -25,6 +25,8 @@ import { Progress } from "@/components/ui/progress"
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useToast } from "@/hooks/use-toast"
+import { db } from "@/lib/firebase"
+import { collection, addDoc, serverTimestamp } from "firebase/firestore"
 
 export default function SandboxPage() {
   const [emailText, setEmailText] = useState("")
@@ -40,9 +42,28 @@ export default function SandboxPage() {
     try {
       const output = await emailAnalysisSandbox({ emailText })
       setResult(output)
+
+      // Store in Firestore if DB is configured
+      if (db) {
+        try {
+          await addDoc(collection(db, "audits"), {
+            emailText,
+            totalScore: output.totalScore,
+            hasFatalError: output.hasFatalError,
+            overallFeedback: output.overallFeedback,
+            parameters: output.parameters,
+            timestamp: serverTimestamp(),
+            source: 'sandbox'
+          });
+        } catch (fsError) {
+          console.error("Failed to store audit in Firestore:", fsError);
+          // We don't block the UI if Firestore fails, just log it
+        }
+      }
+
       toast({
         title: "Evaluation Complete",
-        description: "Your draft has been analyzed against the 10-parameter rubric.",
+        description: "Your draft has been analyzed and saved to the audit log.",
       })
     } catch (error: any) {
       console.error("Analysis failed", error)
