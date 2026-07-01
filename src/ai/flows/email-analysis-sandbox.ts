@@ -88,30 +88,34 @@ const emailAnalysisSandboxFlow = ai.defineFlow(
   },
   async input => {
     try {
+      console.log("Starting email analysis flow for input length:", input.emailText.length);
       const {output} = await prompt(input);
+      
       if (!output) {
         throw new Error('AI failed to generate a valid response.');
       }
 
+      console.log("Analysis complete. Total Score:", output.totalScore);
+
       // Automatically store in Firestore
-      try {
-        if (db) {
-          await addDoc(collection(db, "audits"), {
+      if (db) {
+        try {
+          const docRef = await addDoc(collection(db, "audits"), {
             emailText: input.emailText,
             totalScore: output.totalScore,
             hasFatalError: output.hasFatalError,
             overallFeedback: output.overallFeedback,
             parameters: output.parameters,
             timestamp: serverTimestamp(),
-            source: 'sandbox-flow'
+            source: 'sandbox-flow',
+            createdAt: new Date().toISOString()
           });
-          console.log("Successfully stored audit in Firestore");
-        } else {
-          console.warn("Firestore (db) is not initialized. Check environment variables.");
+          console.log("Successfully stored audit in Firestore with ID:", docRef.id);
+        } catch (dbError) {
+          console.error("Failed to store audit in Firestore:", dbError);
         }
-      } catch (dbError) {
-        console.error("Failed to store audit in Firestore:", dbError);
-        // We don't throw here so the user still gets their result even if DB storage fails
+      } else {
+        console.warn("Firestore (db) is not initialized. Audit was not saved.");
       }
 
       return output;
