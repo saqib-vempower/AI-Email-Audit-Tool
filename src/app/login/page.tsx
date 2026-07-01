@@ -73,7 +73,7 @@ export default function LoginPage() {
             <CardHeader>
               <CardTitle className="text-xl">Login</CardTitle>
               <CardDescription>Enter your credentials to access the dashboard</CardDescription>
-            </Header>
+            </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>

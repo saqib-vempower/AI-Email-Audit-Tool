@@ -90,7 +90,7 @@ const emailAnalysisSandboxFlow = ai.defineFlow(
         throw new Error('AI failed to generate a valid response.');
       }
       return output;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Genkit flow error:', error);
       throw error;
     }
