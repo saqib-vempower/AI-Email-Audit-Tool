@@ -23,17 +23,22 @@ export default function LoginPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     
+    setLoading(true)
+    
+    // Safety check for Firebase configuration
     if (!auth) {
+      console.warn("Firebase not configured. Entering demo mode.")
       toast({
-        variant: "destructive",
-        title: "Configuration Required",
-        description: "Please set up your Firebase environment variables to enable login.",
+        title: "Demo Mode Enabled",
+        description: "Firebase configuration missing. Redirecting to dashboard.",
       })
+      setTimeout(() => {
+        router.push("/dashboard")
+        setLoading(false)
+      }, 1000)
       return
     }
 
-    setLoading(true)
-    
     try {
       await signInWithEmailAndPassword(auth, email, password);
       toast({
@@ -102,7 +107,11 @@ export default function LoginPage() {
               </div>
             </CardContent>
             <CardFooter className="flex flex-col gap-4">
-              <Button className="w-full bg-accent hover:bg-accent/90 h-11 text-base font-bold" disabled={loading}>
+              <Button 
+                type="submit"
+                className="w-full bg-accent hover:bg-accent/90 h-11 text-base font-bold" 
+                disabled={loading}
+              >
                 {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : "Sign In"}
               </Button>
             </CardFooter>
