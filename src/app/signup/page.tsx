@@ -75,14 +75,14 @@ export default function SignupPage() {
             <Mail className="h-6 w-6" />
           </div>
           <h1 className="text-3xl font-bold tracking-tight text-primary">EduMail <span className="text-accent">QA</span></h1>
-          <p className="text-muted-foreground">Create your advisor account</p>
+          <p className="text-muted-foreground">Sign up to get started</p>
         </div>
 
         <Card className="border-none shadow-xl">
           <form onSubmit={handleSignup}>
             <CardHeader>
-              <CardTitle className="text-xl">Advisor Registration</CardTitle>
-              <CardDescription>Enter your credentials to get started</CardDescription>
+              <CardTitle className="text-xl">Sign Up</CardTitle>
+              <CardDescription>Enter your email and password to create your account</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
