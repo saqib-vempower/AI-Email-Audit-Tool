@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Mail, ArrowLeft, Loader2 } from "lucide-react"
+import { Mail, ArrowLeft, Loader2, Sparkles } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { auth, db } from "@/lib/firebase"
 import { createUserWithEmailAndPassword } from "firebase/auth"
@@ -27,7 +27,7 @@ export default function SignupPage() {
       toast({
         variant: "destructive",
         title: "Configuration Required",
-        description: "Please set up your Firebase environment variables to enable authentication.",
+        description: "Firebase is not yet configured. Please add your API keys to the environment.",
       })
       return
     }
@@ -35,11 +35,9 @@ export default function SignupPage() {
     setLoading(true)
     
     try {
-      // Create user in Firebase Auth
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
-      // Store basic user data in Firestore
       await setDoc(doc(db, "users", user.uid), {
         email,
         role: "advisor",
@@ -48,7 +46,7 @@ export default function SignupPage() {
 
       toast({
         title: "Account Created",
-        description: "Successfully signed in with your new account.",
+        description: "Welcome to EduMail QA!",
       })
 
       router.push("/dashboard")
@@ -76,16 +74,16 @@ export default function SignupPage() {
           <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-accent text-white mb-4">
             <Mail className="h-6 w-6" />
           </div>
-          <h1 className="text-3xl font-bold tracking-tight text-primary">Get Started</h1>
-          <p className="text-muted-foreground">Sign up to access your dashboard</p>
+          <h1 className="text-3xl font-bold tracking-tight text-primary">EduMail <span className="text-accent">QA</span></h1>
+          <p className="text-muted-foreground">Create your advisor account</p>
         </div>
 
         <Card className="border-none shadow-xl">
           <form onSubmit={handleSignup}>
             <CardHeader>
-              <CardTitle className="text-xl">Sign Up</CardTitle>
-              <CardDescription>Enter your email and password to create an account</CardDescription>
-            </Header>
+              <CardTitle className="text-xl">Advisor Registration</CardTitle>
+              <CardDescription>Enter your credentials to get started</CardDescription>
+            </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
@@ -96,6 +94,7 @@ export default function SignupPage() {
                   required 
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  className="h-11"
                 />
               </div>
               <div className="space-y-2">
@@ -106,20 +105,32 @@ export default function SignupPage() {
                   required 
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  className="h-11"
                 />
               </div>
             </CardContent>
             <CardFooter className="flex flex-col gap-4">
-              <Button className="w-full bg-accent hover:bg-accent/90 h-11 text-base font-bold" type="submit" disabled={loading}>
+              <Button 
+                className="w-full bg-accent hover:bg-accent/90 h-11 text-base font-bold shadow-lg shadow-accent/20" 
+                type="submit" 
+                disabled={loading}
+              >
                 {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : "Sign Up"}
               </Button>
-              <p className="text-sm text-center text-muted-foreground">
-                Already have an account?{" "}
-                <Link href="/login" className="text-accent font-bold hover:underline">Log in</Link>
-              </p>
+              <div className="text-center w-full space-y-2">
+                <p className="text-sm text-muted-foreground">
+                  Already have an account?{" "}
+                  <Link href="/login" className="text-accent font-bold hover:underline">Log in</Link>
+                </p>
+              </div>
             </CardFooter>
           </form>
         </Card>
+        
+        <div className="flex items-center justify-center gap-2 text-[10px] text-muted-foreground uppercase tracking-widest font-bold">
+          <Sparkles className="h-3 w-3 text-accent" />
+          Powered by Gemini 2.5 Flash
+        </div>
       </div>
     </div>
   )
