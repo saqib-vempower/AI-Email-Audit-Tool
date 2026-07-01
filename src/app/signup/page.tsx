@@ -24,6 +24,16 @@ export default function SignupPage() {
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    if (!auth || !db) {
+      toast({
+        variant: "destructive",
+        title: "Configuration Required",
+        description: "Please set up your Firebase environment variables to enable authentication.",
+      })
+      return
+    }
+
     setLoading(true)
     
     try {

@@ -21,6 +21,16 @@ export default function LoginPage() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    if (!auth) {
+      toast({
+        variant: "destructive",
+        title: "Configuration Required",
+        description: "Please set up your Firebase environment variables to enable login.",
+      })
+      return
+    }
+
     setLoading(true)
     
     try {
