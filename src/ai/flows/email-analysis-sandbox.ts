@@ -88,19 +88,20 @@ const emailAnalysisSandboxFlow = ai.defineFlow(
   },
   async input => {
     try {
-      console.log("Starting email analysis flow for input length:", input.emailText.length);
+      console.log("[Genkit] Starting evaluation for email length:", input.emailText.length);
       const {output} = await prompt(input);
       
       if (!output) {
         throw new Error('AI failed to generate a valid response.');
       }
 
-      console.log("Analysis complete. Total Score:", output.totalScore);
+      console.log("[Genkit] Evaluation successful. Total Score:", output.totalScore);
 
-      // Automatically store in Firestore
+      // Attempt storage in Firestore
       if (db) {
         try {
-          const docRef = await addDoc(collection(db, "audits"), {
+          console.log("[Firestore] Attempting to save audit...");
+          const auditData = {
             emailText: input.emailText,
             totalScore: output.totalScore,
             hasFatalError: output.hasFatalError,
@@ -109,18 +110,20 @@ const emailAnalysisSandboxFlow = ai.defineFlow(
             timestamp: serverTimestamp(),
             source: 'sandbox-flow',
             createdAt: new Date().toISOString()
-          });
-          console.log("Successfully stored audit in Firestore with ID:", docRef.id);
+          };
+          
+          const docRef = await addDoc(collection(db, "audits"), auditData);
+          console.log("[Firestore] Audit saved successfully. ID:", docRef.id);
         } catch (dbError) {
-          console.error("Failed to store audit in Firestore:", dbError);
+          console.error("[Firestore] ERROR saving audit:", dbError);
         }
       } else {
-        console.warn("Firestore (db) is not initialized. Audit was not saved.");
+        console.warn("[Firestore] WARNING: Database (db) is null. Verify environment variables.");
       }
 
       return output;
     } catch (error: any) {
-      console.error('Genkit flow error:', error);
+      console.error('[Genkit] Flow execution error:', error);
       throw error;
     }
   }

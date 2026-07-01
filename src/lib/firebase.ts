@@ -11,7 +11,8 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || process.env.FIREBASE_APP_ID,
 };
 
-const isConfigValid = !!firebaseConfig.apiKey && firebaseConfig.apiKey !== "undefined" && firebaseConfig.apiKey.length > 0;
+// More permissive check to allow initialization if at least Project ID and API Key are present
+const isConfigValid = !!firebaseConfig.apiKey && !!firebaseConfig.projectId && firebaseConfig.apiKey !== "undefined";
 
 let auth: any = null;
 let db: any = null;
@@ -21,13 +22,17 @@ if (isConfigValid) {
     const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
     auth = getAuth(app);
     db = getFirestore(app);
-    console.log("Firebase initialized successfully for project:", firebaseConfig.projectId);
+    if (typeof window === 'undefined') {
+      console.log("Firebase initialized on Server for project:", firebaseConfig.projectId);
+    }
   } catch (error) {
     console.error("Firebase initialization failed:", error);
   }
 } else {
-  if (typeof window !== 'undefined' && process.env.NODE_ENV !== 'production') {
-    console.warn("Firebase configuration is missing or invalid. Check your environment variables.");
+  if (typeof window !== 'undefined') {
+    console.warn("Firebase configuration is missing. Check your environment variables.");
+  } else {
+    console.warn("Firebase Server-side init skipped: Missing API Key or Project ID.");
   }
 }
 
