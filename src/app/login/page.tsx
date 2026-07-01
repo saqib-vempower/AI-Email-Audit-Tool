@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState } from "react"
@@ -9,18 +8,38 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Mail, ArrowLeft, Loader2 } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { auth } from "@/lib/firebase"
+import { signInWithEmailAndPassword } from "firebase/auth"
+import { useToast } from "@/hooks/use-toast"
 
 export default function LoginPage() {
   const [loading, setLoading] = useState(false)
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
   const router = useRouter()
+  const { toast } = useToast()
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
-    // Simulate auth
-    setTimeout(() => {
+    
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      toast({
+        title: "Welcome Back",
+        description: "Successfully signed in.",
+      })
       router.push("/dashboard")
-    }, 1500)
+    } catch (error: any) {
+      console.error("Login error:", error)
+      toast({
+        variant: "destructive",
+        title: "Login Failed",
+        description: error.message || "Invalid credentials. Please try again.",
+      })
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -44,18 +63,31 @@ export default function LoginPage() {
             <CardHeader>
               <CardTitle className="text-xl">Login</CardTitle>
               <CardDescription>Enter your credentials to access the dashboard</CardDescription>
-            </CardHeader>
+            </Header>
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" placeholder="name@school.edu" required />
+                <Input 
+                  id="email" 
+                  type="email" 
+                  placeholder="name@school.edu" 
+                  required 
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
               </div>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="password">Password</Label>
                   <Link href="#" className="text-xs text-accent hover:underline">Forgot password?</Link>
                 </div>
-                <Input id="password" type="password" required />
+                <Input 
+                  id="password" 
+                  type="password" 
+                  required 
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
               </div>
             </CardContent>
             <CardFooter className="flex flex-col gap-4">
