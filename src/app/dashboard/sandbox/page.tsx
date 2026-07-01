@@ -8,7 +8,6 @@ import {
   Heart, 
   CheckCircle2, 
   Sparkles, 
-  AlertCircle, 
   Scale, 
   ArrowRight,
   Loader2,
@@ -25,8 +24,6 @@ import { Progress } from "@/components/ui/progress"
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useToast } from "@/hooks/use-toast"
-import { db } from "@/lib/firebase"
-import { collection, addDoc, serverTimestamp } from "firebase/firestore"
 
 export default function SandboxPage() {
   const [emailText, setEmailText] = useState("")
@@ -40,37 +37,20 @@ export default function SandboxPage() {
     setResult(null)
     
     try {
+      // The flow now handles storing the result in Firestore automatically on the server
       const output = await emailAnalysisSandbox({ emailText })
       setResult(output)
 
-      // Store in Firestore if DB is configured
-      if (db) {
-        try {
-          await addDoc(collection(db, "audits"), {
-            emailText,
-            totalScore: output.totalScore,
-            hasFatalError: output.hasFatalError,
-            overallFeedback: output.overallFeedback,
-            parameters: output.parameters,
-            timestamp: serverTimestamp(),
-            source: 'sandbox'
-          });
-        } catch (fsError) {
-          console.error("Failed to store audit in Firestore:", fsError);
-          // We don't block the UI if Firestore fails, just log it
-        }
-      }
-
       toast({
         title: "Evaluation Complete",
-        description: "Your draft has been analyzed and saved to the audit log.",
+        description: "Your draft has been analyzed and logged to history.",
       })
     } catch (error: any) {
       console.error("Analysis failed", error)
       toast({
         variant: "destructive",
         title: "Evaluation Service Error",
-        description: error.message || "The AI service is currently unavailable. Please try again in a few moments.",
+        description: error.message || "The AI service is currently unavailable. Please try again.",
       })
     } finally {
       setLoading(false)
@@ -199,7 +179,7 @@ export default function SandboxPage() {
                               <div className="p-2 rounded-lg bg-primary/5">
                                 <param.icon className="h-5 w-5 text-primary" />
                               </div>
-                              <div>
+                              <div className="flex flex-col">
                                 <div className="font-bold text-sm flex items-center gap-2">
                                   {param.label}
                                   {param.isFatal && (

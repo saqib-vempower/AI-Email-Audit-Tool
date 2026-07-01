@@ -2,10 +2,13 @@
 /**
  * @fileOverview This file implements the Genkit flow for the Email Analysis Sandbox feature.
  * It allows team leads to paste email text and receive instant evaluation based on a 10-parameter rubric.
+ * Results are automatically stored in the 'audits' Firestore collection.
  */
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import {db} from '@/lib/firebase';
+import {collection, addDoc, serverTimestamp} from 'firebase/firestore';
 
 const EvaluationParameterSchema = z.object({
   score: z.number().describe('Score for this parameter (max weight value).'),
@@ -89,6 +92,28 @@ const emailAnalysisSandboxFlow = ai.defineFlow(
       if (!output) {
         throw new Error('AI failed to generate a valid response.');
       }
+
+      // Automatically store in Firestore
+      try {
+        if (db) {
+          await addDoc(collection(db, "audits"), {
+            emailText: input.emailText,
+            totalScore: output.totalScore,
+            hasFatalError: output.hasFatalError,
+            overallFeedback: output.overallFeedback,
+            parameters: output.parameters,
+            timestamp: serverTimestamp(),
+            source: 'sandbox-flow'
+          });
+          console.log("Successfully stored audit in Firestore");
+        } else {
+          console.warn("Firestore (db) is not initialized. Check environment variables.");
+        }
+      } catch (dbError) {
+        console.error("Failed to store audit in Firestore:", dbError);
+        // We don't throw here so the user still gets their result even if DB storage fails
+      }
+
       return output;
     } catch (error: any) {
       console.error('Genkit flow error:', error);
