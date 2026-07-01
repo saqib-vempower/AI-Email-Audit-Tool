@@ -1,3 +1,4 @@
+
 "use client"
 
 import Link from "next/link"
@@ -46,7 +47,7 @@ export default function LandingPage() {
             Log in
           </Link>
           <Button asChild className="bg-accent hover:bg-accent/90 text-white font-bold rounded-full px-6">
-            <Link href="/signup">Get Started</Link>
+            <Link href="/login">Get Started</Link>
           </Button>
         </div>
       </header>
@@ -76,7 +77,7 @@ export default function LandingPage() {
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-300">
               <Button size="lg" asChild className="h-16 px-10 text-lg font-bold bg-primary hover:bg-primary/90 shadow-xl shadow-primary/20 rounded-full group">
-                <Link href="/signup" className="flex items-center gap-2">
+                <Link href="/login" className="flex items-center gap-2">
                   Get Started Now <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
                 </Link>
               </Button>
@@ -174,7 +175,7 @@ export default function LandingPage() {
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center pt-6">
                   <Button size="lg" asChild className="bg-accent hover:bg-accent/90 text-white font-black h-16 px-10 rounded-full">
-                    <Link href="/signup">Create Account</Link>
+                    <Link href="/login">Get Started</Link>
                   </Button>
                   <Button size="lg" variant="outline" asChild className="border-white/20 text-white hover:bg-white/10 font-black h-16 px-10 rounded-full">
                     <Link href="/dashboard">View Live Demo</Link>

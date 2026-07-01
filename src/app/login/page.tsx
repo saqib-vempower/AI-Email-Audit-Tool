@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState } from "react"
@@ -104,10 +105,6 @@ export default function LoginPage() {
               <Button className="w-full bg-accent hover:bg-accent/90 h-11 text-base font-bold" disabled={loading}>
                 {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : "Sign In"}
               </Button>
-              <p className="text-sm text-center text-muted-foreground">
-                Don't have an account?{" "}
-                <Link href="/signup" className="text-accent font-bold hover:underline">Sign up</Link>
-              </p>
             </CardFooter>
           </form>
         </Card>
