@@ -54,9 +54,6 @@ export default function LandingPage() {
         <nav className="hidden md:flex gap-8 items-center text-sm font-semibold text-muted-foreground">
           <Link href="#features" className="hover:text-accent transition-colors">Features</Link>
           <Link href="#rubric" className="hover:text-accent transition-colors">Rubric</Link>
-          <Link href="/dashboard/sandbox" className="hover:text-accent transition-colors flex items-center gap-1.5">
-            <Zap className="h-3.5 w-3.5 fill-current" /> Sandbox
-          </Link>
         </nav>
 
         <div className="flex items-center gap-4">
@@ -92,7 +89,7 @@ export default function LandingPage() {
               The only automated evaluation platform built for education advisors. Ensure institutional policy compliance, empathy, and accuracy in every interaction.
             </p>
 
-            {/* Rubric Section Replacing the Image */}
+            {/* Rubric Section */}
             <div id="rubric" className="pt-24 max-w-6xl mx-auto animate-in fade-in zoom-in-95 duration-1000 delay-500">
               <div className="text-center mb-12">
                 <h2 className="text-3xl font-black text-primary mb-2">The Excellence Rubric</h2>
@@ -241,7 +238,7 @@ export default function LandingPage() {
             <h4 className="font-bold text-primary">Product</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li><Link href="#features" className="hover:text-accent">Features</Link></li>
-              <li><Link href="/dashboard/sandbox" className="hover:text-accent">Sandbox</Link></li>
+              <li><Link href="#rubric" className="hover:text-accent">Rubric</Link></li>
               <li><Link href="#" className="hover:text-accent">Compliance</Link></li>
             </ul>
           </div>
