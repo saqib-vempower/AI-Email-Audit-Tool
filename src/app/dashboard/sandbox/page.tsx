@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState } from "react"
@@ -20,7 +21,8 @@ import {
   Clock,
   UserCheck,
   Flag,
-  User
+  User,
+  Hash
 } from "lucide-react"
 import { emailAnalysisSandbox, type EmailAnalysisSandboxOutput } from "@/ai/flows/email-analysis-sandbox"
 import { Progress } from "@/components/ui/progress"
@@ -30,7 +32,7 @@ import { useToast } from "@/hooks/use-toast"
 
 export default function SandboxPage() {
   const [emailText, setEmailText] = useState("")
-  const [advisorEmail, setAdvisorEmail] = useState("")
+  const [advisorCode, setAdvisorCode] = useState("")
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<EmailAnalysisSandboxOutput | null>(null)
   const { toast } = useToast()
@@ -45,11 +47,11 @@ export default function SandboxPage() {
       return
     }
     
-    if (!advisorEmail.trim()) {
+    if (advisorCode.length !== 6) {
       toast({
         variant: "destructive",
-        title: "Advisor ID Required",
-        description: "Please enter the Advisor Email ID for tracking purposes.",
+        title: "Invalid Advisor Code",
+        description: "Please enter a valid 6-digit Advisor Code for tracking purposes.",
       })
       return
     }
@@ -58,12 +60,12 @@ export default function SandboxPage() {
     setResult(null)
     
     try {
-      const output = await emailAnalysisSandbox({ emailText, advisorEmail })
+      const output = await emailAnalysisSandbox({ emailText, advisorCode })
       setResult(output)
 
       toast({
         title: "Evaluation Complete",
-        description: "Your draft has been analyzed and logged to Firestore.",
+        description: `Audit for Advisor #${advisorCode} has been logged.`,
       })
     } catch (error: any) {
       console.error("Analysis failed", error)
@@ -113,17 +115,18 @@ export default function SandboxPage() {
               <CardTitle className="text-lg">Advisor Draft</CardTitle>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="advisorEmail" className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                Enter Advisor Email ID
+              <Label htmlFor="advisorCode" className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                Enter Advisor 6-digit Code
               </Label>
               <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Hash className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input 
-                  id="advisorEmail"
-                  placeholder="advisor@institution.edu"
-                  className="pl-10 bg-white"
-                  value={advisorEmail}
-                  onChange={(e) => setAdvisorEmail(e.target.value)}
+                  id="advisorCode"
+                  placeholder="e.g. 123456"
+                  maxLength={6}
+                  className="pl-10 bg-white font-mono"
+                  value={advisorCode}
+                  onChange={(e) => setAdvisorCode(e.target.value.replace(/[^0-9]/g, ""))}
                 />
               </div>
             </div>
@@ -140,7 +143,7 @@ export default function SandboxPage() {
                 <p className="text-xs text-muted-foreground">Chars: {emailText.length}</p>
                 <Button 
                   onClick={handleAnalyze} 
-                  disabled={loading || !emailText.trim() || !advisorEmail.trim()}
+                  disabled={loading || !emailText.trim() || advisorCode.length !== 6}
                   className="bg-accent hover:bg-accent/90 transition-all font-semibold gap-2"
                 >
                   {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
@@ -160,7 +163,7 @@ export default function SandboxPage() {
               <div className="space-y-2">
                 <h3 className="font-bold text-xl">Awaiting Content</h3>
                 <p className="text-sm text-muted-foreground max-w-[300px] mx-auto">
-                  Paste the email and enter the Advisor Email ID to run the official 10-parameter AI rubric.
+                  Paste the email and enter the 6-digit Advisor Code to run the official 10-parameter AI rubric.
                 </p>
               </div>
             </Card>
@@ -174,7 +177,7 @@ export default function SandboxPage() {
               </div>
               <div className="space-y-2">
                 <h3 className="font-bold text-xl">AI Audit in Progress...</h3>
-                <p className="text-sm text-muted-foreground">Verifying policy compliance for {advisorEmail}</p>
+                <p className="text-sm text-muted-foreground">Verifying policy compliance for Advisor #{advisorCode}</p>
               </div>
             </Card>
           )}
@@ -186,7 +189,7 @@ export default function SandboxPage() {
                   <AlertTriangle className="h-6 w-6 shrink-0" />
                   <div>
                     <p className="font-bold">FATAL Error Detected</p>
-                    <p className="text-sm opacity-90">Critical issues found in Grammar/Tone or Resolution for advisor {advisorEmail}.</p>
+                    <p className="text-sm opacity-90">Critical issues found in Grammar/Tone or Resolution for Advisor #{advisorCode}.</p>
                   </div>
                 </div>
               )}
@@ -197,7 +200,7 @@ export default function SandboxPage() {
                     <div>
                       <CardTitle className="text-2xl font-black">Audit Results</CardTitle>
                       <CardDescription className="text-primary-foreground/60">
-                        Evaluated for: {advisorEmail}
+                        Advisor Code: {advisorCode}
                       </CardDescription>
                     </div>
                     <div className="text-right">

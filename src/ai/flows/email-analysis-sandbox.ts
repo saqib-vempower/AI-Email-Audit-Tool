@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview This file implements the Genkit flow for the Email Analysis Sandbox feature.
@@ -40,7 +41,7 @@ export type EmailAnalysisSandboxOutput = z.infer<
 
 const EmailAnalysisSandboxInputSchema = z.object({
   emailText: z.string().describe('The email text to be evaluated.'),
-  advisorEmail: z.string().describe('The email/ID of the advisor being evaluated.'),
+  advisorCode: z.string().describe('The 6-digit identification code of the advisor being evaluated.'),
 });
 export type EmailAnalysisSandboxInput = z.infer<
   typeof EmailAnalysisSandboxInputSchema
@@ -77,7 +78,7 @@ Evaluate the provided email text strictly against the following 10 parameters.
 - Parameters 4 and 5 are FATAL. If they score below 50% of their weight (7.5 pts), set hasFatalError to true.
 - Calculate totalScore as the sum of all individual scores.
 
-Advisor Email ID: {{{advisorEmail}}}
+Advisor Identification Code: {{{advisorCode}}}
 Email Text to Evaluate:
 {{{emailText}}}`,
 });
@@ -90,7 +91,7 @@ const emailAnalysisSandboxFlow = ai.defineFlow(
   },
   async input => {
     try {
-      console.log("[Genkit] Starting evaluation for advisor:", input.advisorEmail);
+      console.log("[Genkit] Starting evaluation for advisor code:", input.advisorCode);
       const {output} = await prompt(input);
       
       if (!output) {
@@ -101,7 +102,7 @@ const emailAnalysisSandboxFlow = ai.defineFlow(
       if (db) {
         try {
           const auditData = {
-            advisorEmail: input.advisorEmail,
+            advisorCode: input.advisorCode,
             emailText: input.emailText,
             totalScore: output.totalScore,
             hasFatalError: output.hasFatalError,
@@ -113,10 +114,12 @@ const emailAnalysisSandboxFlow = ai.defineFlow(
           };
           
           await addDoc(collection(db, "audits"), auditData);
-          console.log("[Firestore] Audit saved successfully for:", input.advisorEmail);
+          console.log("[Firestore] Audit saved successfully for advisor code:", input.advisorCode);
         } catch (dbError) {
           console.error("[Firestore] ERROR saving audit:", dbError);
         }
+      } else {
+        console.warn("[Firestore] Database not initialized. Audit not saved.");
       }
 
       return output;
