@@ -3,6 +3,8 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { 
   Heart, 
@@ -17,7 +19,8 @@ import {
   FileText,
   Clock,
   UserCheck,
-  Flag
+  Flag,
+  User
 } from "lucide-react"
 import { emailAnalysisSandbox, type EmailAnalysisSandboxOutput } from "@/ai/flows/email-analysis-sandbox"
 import { Progress } from "@/components/ui/progress"
@@ -27,23 +30,40 @@ import { useToast } from "@/hooks/use-toast"
 
 export default function SandboxPage() {
   const [emailText, setEmailText] = useState("")
+  const [advisorEmail, setAdvisorEmail] = useState("")
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<EmailAnalysisSandboxOutput | null>(null)
   const { toast } = useToast()
 
   const handleAnalyze = async () => {
-    if (!emailText.trim()) return
+    if (!emailText.trim()) {
+      toast({
+        variant: "destructive",
+        title: "Missing Content",
+        description: "Please paste the email text you want to evaluate.",
+      })
+      return
+    }
+    
+    if (!advisorEmail.trim()) {
+      toast({
+        variant: "destructive",
+        title: "Advisor ID Required",
+        description: "Please enter the Advisor Email ID for tracking purposes.",
+      })
+      return
+    }
+
     setLoading(true)
     setResult(null)
     
     try {
-      // The flow now handles storing the result in Firestore automatically on the server
-      const output = await emailAnalysisSandbox({ emailText })
+      const output = await emailAnalysisSandbox({ emailText, advisorEmail })
       setResult(output)
 
       toast({
         title: "Evaluation Complete",
-        description: "Your draft has been analyzed and logged to history.",
+        description: "Your draft has been analyzed and logged to Firestore.",
       })
     } catch (error: any) {
       console.error("Analysis failed", error)
@@ -87,26 +107,40 @@ export default function SandboxPage() {
 
       <div className="grid gap-8 lg:grid-cols-5 items-start">
         <Card className="lg:col-span-2 border-none shadow-lg overflow-hidden sticky top-24">
-          <CardHeader className="bg-primary/5 border-b">
+          <CardHeader className="bg-primary/5 border-b space-y-4">
             <div className="flex items-center gap-2">
               <BookOpen className="h-5 w-5 text-accent" />
               <CardTitle className="text-lg">Advisor Draft</CardTitle>
             </div>
-            <CardDescription>Paste the email content below for evaluation</CardDescription>
+            <div className="space-y-2">
+              <Label htmlFor="advisorEmail" className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                Enter Advisor Email ID
+              </Label>
+              <div className="relative">
+                <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input 
+                  id="advisorEmail"
+                  placeholder="advisor@institution.edu"
+                  className="pl-10 bg-white"
+                  value={advisorEmail}
+                  onChange={(e) => setAdvisorEmail(e.target.value)}
+                />
+              </div>
+            </div>
           </CardHeader>
           <CardContent className="p-0">
             <Textarea 
               placeholder="Dear Student, I am writing to follow up on your recent application query..."
-              className="min-h-[500px] border-none focus-visible:ring-0 resize-none p-6 text-base leading-relaxed placeholder:text-muted-foreground/50"
+              className="min-h-[400px] border-none focus-visible:ring-0 resize-none p-6 text-base leading-relaxed placeholder:text-muted-foreground/50"
               value={emailText}
               onChange={(e) => setEmailText(e.target.value)}
             />
             <div className="p-4 bg-muted/30 border-t flex flex-col gap-4">
               <div className="flex justify-between items-center">
-                <p className="text-xs text-muted-foreground">Character count: {emailText.length}</p>
+                <p className="text-xs text-muted-foreground">Chars: {emailText.length}</p>
                 <Button 
                   onClick={handleAnalyze} 
-                  disabled={loading || !emailText.trim()}
+                  disabled={loading || !emailText.trim() || !advisorEmail.trim()}
                   className="bg-accent hover:bg-accent/90 transition-all font-semibold gap-2"
                 >
                   {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
@@ -126,7 +160,7 @@ export default function SandboxPage() {
               <div className="space-y-2">
                 <h3 className="font-bold text-xl">Awaiting Content</h3>
                 <p className="text-sm text-muted-foreground max-w-[300px] mx-auto">
-                  The AI will analyze your draft against the official 10-parameter rubric including fatal error detection.
+                  Paste the email and enter the Advisor Email ID to run the official 10-parameter AI rubric.
                 </p>
               </div>
             </Card>
@@ -140,7 +174,7 @@ export default function SandboxPage() {
               </div>
               <div className="space-y-2">
                 <h3 className="font-bold text-xl">AI Audit in Progress...</h3>
-                <p className="text-sm text-muted-foreground">Verifying policy compliance, tone, and empathy parameters</p>
+                <p className="text-sm text-muted-foreground">Verifying policy compliance for {advisorEmail}</p>
               </div>
             </Card>
           )}
@@ -152,7 +186,7 @@ export default function SandboxPage() {
                   <AlertTriangle className="h-6 w-6 shrink-0" />
                   <div>
                     <p className="font-bold">FATAL Error Detected</p>
-                    <p className="text-sm opacity-90">This email contains critical issues in Grammar/Tone or Resolution that must be fixed.</p>
+                    <p className="text-sm opacity-90">Critical issues found in Grammar/Tone or Resolution for advisor {advisorEmail}.</p>
                   </div>
                 </div>
               )}
@@ -162,7 +196,9 @@ export default function SandboxPage() {
                   <div className="flex justify-between items-center">
                     <div>
                       <CardTitle className="text-2xl font-black">Audit Results</CardTitle>
-                      <CardDescription className="text-primary-foreground/60">Comprehensive Rubric Analysis</CardDescription>
+                      <CardDescription className="text-primary-foreground/60">
+                        Evaluated for: {advisorEmail}
+                      </CardDescription>
                     </div>
                     <div className="text-right">
                       <p className="text-4xl font-black text-accent">{result.totalScore}<span className="text-xl font-normal text-white/50">/100</span></p>
@@ -170,7 +206,7 @@ export default function SandboxPage() {
                   </div>
                 </CardHeader>
                 <CardContent className="p-0">
-                  <ScrollArea className="h-[700px]">
+                  <ScrollArea className="h-[600px]">
                     <div className="p-6 space-y-4">
                       {parametersList.map((param) => (
                         <div key={param.label} className="p-4 rounded-xl border bg-white shadow-sm hover:shadow-md transition-all space-y-3">
