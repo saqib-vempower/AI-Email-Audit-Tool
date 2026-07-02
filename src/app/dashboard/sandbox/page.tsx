@@ -50,8 +50,8 @@ export default function SandboxPage() {
     if (advisorCode.length !== 6) {
       toast({
         variant: "destructive",
-        title: "Invalid Advisor Code",
-        description: "Please enter a valid 6-digit Advisor Code for tracking purposes.",
+        title: "Invalid EmailID",
+        description: "Please enter a valid 6-digit EmailID for tracking purposes.",
       })
       return
     }
@@ -65,7 +65,7 @@ export default function SandboxPage() {
 
       toast({
         title: "Evaluation Complete",
-        description: `Audit for Advisor #${advisorCode} has been logged.`,
+        description: `Audit for EmailID #${advisorCode} has been logged.`,
       })
     } catch (error: any) {
       console.error("Analysis failed", error)
@@ -116,13 +116,13 @@ export default function SandboxPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="advisorCode" className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                Enter Advisor 6-digit Code
+                Enter EmailID
               </Label>
               <div className="relative">
                 <Hash className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input 
                   id="advisorCode"
-                  placeholder="e.g. 123456"
+                  placeholder="# e.g. 110429"
                   maxLength={6}
                   className="pl-10 bg-white font-mono"
                   value={advisorCode}
@@ -163,7 +163,7 @@ export default function SandboxPage() {
               <div className="space-y-2">
                 <h3 className="font-bold text-xl">Awaiting Content</h3>
                 <p className="text-sm text-muted-foreground max-w-[300px] mx-auto">
-                  Paste the email and enter the 6-digit Advisor Code to run the official 10-parameter AI rubric.
+                  Paste the email and enter the 6-digit EmailID to run the official 10-parameter AI rubric.
                 </p>
               </div>
             </Card>
@@ -177,7 +177,7 @@ export default function SandboxPage() {
               </div>
               <div className="space-y-2">
                 <h3 className="font-bold text-xl">AI Audit in Progress...</h3>
-                <p className="text-sm text-muted-foreground">Verifying policy compliance for Advisor #{advisorCode}</p>
+                <p className="text-sm text-muted-foreground">Verifying policy compliance for EmailID #{advisorCode}</p>
               </div>
             </Card>
           )}
@@ -189,7 +189,7 @@ export default function SandboxPage() {
                   <AlertTriangle className="h-6 w-6 shrink-0" />
                   <div>
                     <p className="font-bold">FATAL Error Detected</p>
-                    <p className="text-sm opacity-90">Critical issues found in Grammar/Tone or Resolution for Advisor #{advisorCode}.</p>
+                    <p className="text-sm opacity-90">Critical issues found in Grammar/Tone or Resolution for EmailID #{advisorCode}.</p>
                   </div>
                 </div>
               )}
@@ -200,7 +200,7 @@ export default function SandboxPage() {
                     <div>
                       <CardTitle className="text-2xl font-black">Audit Results</CardTitle>
                       <CardDescription className="text-primary-foreground/60">
-                        Advisor Code: {advisorCode}
+                        EmailID: {advisorCode}
                       </CardDescription>
                     </div>
                     <div className="text-right">

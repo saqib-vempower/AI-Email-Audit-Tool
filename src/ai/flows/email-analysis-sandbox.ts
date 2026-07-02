@@ -41,7 +41,7 @@ export type EmailAnalysisSandboxOutput = z.infer<
 
 const EmailAnalysisSandboxInputSchema = z.object({
   emailText: z.string().describe('The email text to be evaluated.'),
-  advisorCode: z.string().describe('The 6-digit identification code of the advisor being evaluated.'),
+  advisorCode: z.string().describe('The 6-digit identification code of the advisor being evaluated (EmailID).'),
 });
 export type EmailAnalysisSandboxInput = z.infer<
   typeof EmailAnalysisSandboxInputSchema
@@ -78,7 +78,7 @@ Evaluate the provided email text strictly against the following 10 parameters.
 - Parameters 4 and 5 are FATAL. If they score below 50% of their weight (7.5 pts), set hasFatalError to true.
 - Calculate totalScore as the sum of all individual scores.
 
-Advisor Identification Code: {{{advisorCode}}}
+Advisor/EmailID: {{{advisorCode}}}
 Email Text to Evaluate:
 {{{emailText}}}`,
 });
@@ -91,7 +91,7 @@ const emailAnalysisSandboxFlow = ai.defineFlow(
   },
   async input => {
     try {
-      console.log("[Genkit] Starting evaluation for advisor code:", input.advisorCode);
+      console.log("[Genkit] Starting evaluation for EmailID:", input.advisorCode);
       const {output} = await prompt(input);
       
       if (!output) {
@@ -114,7 +114,7 @@ const emailAnalysisSandboxFlow = ai.defineFlow(
           };
           
           await addDoc(collection(db, "audits"), auditData);
-          console.log("[Firestore] Audit saved successfully for advisor code:", input.advisorCode);
+          console.log("[Firestore] Audit saved successfully for EmailID:", input.advisorCode);
         } catch (dbError) {
           console.error("[Firestore] ERROR saving audit:", dbError);
         }
