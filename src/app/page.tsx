@@ -92,17 +92,6 @@ export default function LandingPage() {
               The only automated evaluation platform built for education advisors. Ensure institutional policy compliance, empathy, and accuracy in every interaction.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-300">
-              <Button size="lg" asChild className="h-16 px-10 text-lg font-bold bg-primary hover:bg-primary/90 shadow-xl shadow-primary/20 rounded-full group">
-                <Link href="/login" className="flex items-center gap-2">
-                  Start Auditing <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                </Link>
-              </Button>
-              <Button size="lg" variant="outline" asChild className="h-16 px-10 text-lg font-bold border-2 rounded-full">
-                <Link href="/dashboard/sandbox">Try Live Sandbox</Link>
-              </Button>
-            </div>
-
             {/* Rubric Section Replacing the Image */}
             <div id="rubric" className="pt-24 max-w-6xl mx-auto animate-in fade-in zoom-in-95 duration-1000 delay-500">
               <div className="text-center mb-12">
