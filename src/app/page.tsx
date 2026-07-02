@@ -15,14 +15,31 @@ import {
   Zap,
   Globe,
   Lock,
-  Heart
+  Heart,
+  UserCheck,
+  FileText,
+  BookOpen,
+  Scale,
+  Clock,
+  Send,
+  AlertTriangle
 } from "lucide-react"
-import Image from "next/image"
-import { PlaceHolderImages } from "@/lib/placeholder-images"
+import { Badge } from "@/components/ui/badge"
+
+const RUBRIC_PARAMETERS = [
+  { title: "Polite Greeting", weight: 5, icon: UserCheck, desc: "Person-focused opening with proper student address." },
+  { title: "Issue Recognition", weight: 15, icon: FileText, desc: "Restating the contact reason clearly in the first paragraph." },
+  { title: "Clear Structure", weight: 10, icon: BookOpen, desc: "Organized layout with short paragraphs and bullet points." },
+  { title: "Grammar & Tone", weight: 15, icon: Heart, desc: "Professional empathy. Zero tolerance for blame or sarcasm.", fatal: true },
+  { title: "Policy Accuracy", weight: 15, icon: Scale, desc: "Correct university policy resolution and information.", fatal: true },
+  { title: "Clear Next Steps", weight: 10, icon: ArrowRight, desc: "Explicitly defined actions for both student and advisor." },
+  { title: "Timelines Set", weight: 10, icon: Clock, desc: "Specific timeframes (e.g. 48 hours) instead of 'soon'." },
+  { title: "Support Channel", weight: 5, icon: Send, desc: "Correct portal sections or escalation paths provided." },
+  { title: "Professional Closing", weight: 5, icon: CheckCircle2, desc: "Polite closing with full name, role, and department." },
+  { title: "Student Confidence", weight: 10, icon: Sparkles, desc: "Ensures the student has zero remaining ambiguity." },
+]
 
 export default function LandingPage() {
-  const heroImage = PlaceHolderImages.find(img => img.id === 'hero-dashboard')
-
   return (
     <div className="flex flex-col min-h-screen bg-background selection:bg-accent/30">
       {/* Navigation */}
@@ -36,7 +53,7 @@ export default function LandingPage() {
         
         <nav className="hidden md:flex gap-8 items-center text-sm font-semibold text-muted-foreground">
           <Link href="#features" className="hover:text-accent transition-colors">Features</Link>
-          <Link href="#metrics" className="hover:text-accent transition-colors">Metrics</Link>
+          <Link href="#rubric" className="hover:text-accent transition-colors">Rubric</Link>
           <Link href="/dashboard/sandbox" className="hover:text-accent transition-colors flex items-center gap-1.5">
             <Zap className="h-3.5 w-3.5 fill-current" /> Sandbox
           </Link>
@@ -78,7 +95,7 @@ export default function LandingPage() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-300">
               <Button size="lg" asChild className="h-16 px-10 text-lg font-bold bg-primary hover:bg-primary/90 shadow-xl shadow-primary/20 rounded-full group">
                 <Link href="/login" className="flex items-center gap-2">
-                  Get Started Now <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                  Start Auditing <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
                 </Link>
               </Button>
               <Button size="lg" variant="outline" asChild className="h-16 px-10 text-lg font-bold border-2 rounded-full">
@@ -86,18 +103,48 @@ export default function LandingPage() {
               </Button>
             </div>
 
-            <div className="pt-20 animate-in fade-in zoom-in-95 duration-1000 delay-500">
-              <Card className="relative border-none shadow-[0_32px_64px_-16px_rgba(0,0,0,0.15)] overflow-hidden rounded-[2.5rem] max-w-5xl mx-auto ring-1 ring-primary/5">
-                <Image 
-                  src={heroImage?.imageUrl || ""} 
-                  alt={heroImage?.description || ""} 
-                  width={1200} 
-                  height={800} 
-                  className="w-full h-auto"
-                  priority
-                  data-ai-hint={heroImage?.imageHint}
-                />
-              </Card>
+            {/* Rubric Section Replacing the Image */}
+            <div id="rubric" className="pt-24 max-w-6xl mx-auto animate-in fade-in zoom-in-95 duration-1000 delay-500">
+              <div className="text-center mb-12">
+                <h2 className="text-3xl font-black text-primary mb-2">The Excellence Rubric</h2>
+                <p className="text-muted-foreground">Our AI evaluates advisor communications across 10 mission-critical parameters.</p>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                {RUBRIC_PARAMETERS.map((param) => (
+                  <Card key={param.title} className="border-none shadow-md bg-white hover:shadow-lg transition-all text-left group">
+                    <CardContent className="p-5 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="p-2 rounded-lg bg-primary/5 group-hover:bg-accent/10 transition-colors">
+                          <param.icon className="h-5 w-5 text-primary group-hover:text-accent transition-colors" />
+                        </div>
+                        <div className="flex flex-col items-end">
+                          <span className="text-[10px] font-black uppercase text-muted-foreground">Weight</span>
+                          <span className="text-sm font-bold text-primary">{param.weight} pts</span>
+                        </div>
+                      </div>
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-bold text-sm tracking-tight">{param.title}</h3>
+                          {param.fatal && (
+                            <Badge variant="destructive" className="text-[8px] h-3 px-1 uppercase font-black">Fatal</Badge>
+                          )}
+                        </div>
+                        <p className="text-[11px] text-muted-foreground leading-tight">
+                          {param.desc}
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+
+              <div className="mt-8 p-4 rounded-2xl bg-destructive/5 border border-destructive/10 inline-flex items-center gap-3">
+                <AlertTriangle className="h-5 w-5 text-destructive" />
+                <p className="text-xs font-medium text-destructive">
+                  <strong>Fatal parameters</strong> (Grammar & Policy) require a minimum 50% score for overall evaluation pass.
+                </p>
+              </div>
             </div>
           </div>
         </section>
