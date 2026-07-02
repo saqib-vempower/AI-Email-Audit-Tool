@@ -57,11 +57,8 @@ export default function LandingPage() {
         </nav>
 
         <div className="flex items-center gap-4">
-          <Link href="/login" className="text-sm font-bold text-primary hover:text-accent transition-colors px-4 py-2">
-            Log in
-          </Link>
           <Button asChild className="bg-accent hover:bg-accent/90 text-white font-bold rounded-full px-6">
-            <Link href="/login">Get Started</Link>
+            <Link href="/login">Log in</Link>
           </Button>
         </div>
       </header>
@@ -208,10 +205,7 @@ export default function LandingPage() {
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center pt-6">
                   <Button size="lg" asChild className="bg-accent hover:bg-accent/90 text-white font-black h-16 px-10 rounded-full">
-                    <Link href="/login">Get Started</Link>
-                  </Button>
-                  <Button size="lg" variant="outline" asChild className="border-white/20 text-white hover:bg-white/10 font-black h-16 px-10 rounded-full">
-                    <Link href="/dashboard">View Live Demo</Link>
+                    <Link href="/login">Log in</Link>
                   </Button>
                 </div>
               </div>
