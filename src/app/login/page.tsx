@@ -59,65 +59,45 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-6">
-      <Link href="/" className="absolute top-8 left-8 flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors">
-        <ArrowLeft className="h-4 w-4" />
-        Back to Home
-      </Link>
-      
-      <div className="w-full max-w-md space-y-8">
-        <div className="text-center space-y-2">
-          <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-accent text-white mb-4">
-            <Mail className="h-6 w-6" />
-          </div>
-          <h1 className="text-3xl font-bold tracking-tight text-primary">Welcome Back</h1>
-          <p className="text-muted-foreground">Sign in to your EduMail QA account</p>
-        </div>
-
-        <Card className="border-none shadow-xl">
+    <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900">
+      <Card className="w-full max-w-md">
+        <CardHeader>
+          <CardTitle>Welcome Back</CardTitle>
+          <CardDescription>Enter your credentials to access your account.</CardDescription>
+        </CardHeader>
+        <CardContent>
           <form onSubmit={handleLogin}>
-            <CardHeader>
-              <CardTitle className="text-xl">Login</CardTitle>
-              <CardDescription>Enter your credentials to access the dashboard</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
+            <div className="grid w-full items-center gap-4">
+              <div className="flex flex-col space-y-1.5">
                 <Label htmlFor="email">Email</Label>
-                <Input 
-                  id="email" 
-                  type="email" 
-                  placeholder="name@school.edu" 
-                  required 
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
+                <Input id="email" type="email" placeholder="name@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
               </div>
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="password">Password</Label>
-                  <Link href="#" className="text-xs text-accent hover:underline">Forgot password?</Link>
-                </div>
-                <Input 
-                  id="password" 
-                  type="password" 
-                  required 
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
+              <div className="flex flex-col space-y-1.5">
+                <Label htmlFor="password">Password</Label>
+                <Input id="password" type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required />
               </div>
-            </CardContent>
-            <CardFooter className="flex flex-col gap-4">
-              <Button 
-                type="submit"
-                className="w-full bg-accent hover:bg-accent/90 h-11 text-base font-bold" 
-                disabled={loading}
-              >
-                {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : "Sign In"}
-              </Button>
-            </CardFooter>
+            </div>
+            <Button type="submit" className="w-full mt-6" disabled={loading}>
+              {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Mail className="mr-2 h-4 w-4" />}
+              Sign In with Email
+            </Button>
           </form>
-        </Card>
-      </div>
+        </CardContent>
+        <CardFooter className="flex flex-col">
+          <p className="mt-2 text-xs text-center text-gray-700">
+            {"Don't have an account? "}
+            <Link href="/signup" className=" text-blue-600 hover:underline">
+              Sign up
+            </Link>
+          </p>
+          <div className="mt-4">
+            <Link href="/" className="text-sm text-blue-600 hover:underline flex items-center">
+              <ArrowLeft className="h-4 w-4 mr-1" />
+              Back to Home
+            </Link>
+          </div>
+        </CardFooter>
+      </Card>
     </div>
   )
 }

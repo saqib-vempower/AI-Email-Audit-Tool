@@ -1,260 +1,170 @@
 
-"use client"
+'use client';
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Textarea } from "@/components/ui/textarea"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { 
-  Heart, 
-  CheckCircle2, 
-  Sparkles, 
-  Scale, 
-  ArrowRight,
-  Loader2,
-  BookOpen,
-  Send,
-  AlertTriangle,
-  FileText,
-  Clock,
-  UserCheck,
-  Flag,
-  User,
-  Hash
-} from "lucide-react"
-import { emailAnalysisSandbox, type EmailAnalysisSandboxOutput } from "@/ai/flows/email-analysis-sandbox"
-import { Progress } from "@/components/ui/progress"
-import { Badge } from "@/components/ui/badge"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { useToast } from "@/hooks/use-toast"
+import React, { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { emailAnalysisSandbox } from '@/ai/flows/email-analysis-sandbox';
+import type { EmailAnalysisSandboxOutput } from '@/ai/flows/email-analysis-sandbox';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
 
-export default function SandboxPage() {
-  const [emailText, setEmailText] = useState("")
-  const [advisorCode, setAdvisorCode] = useState("")
-  const [loading, setLoading] = useState(false)
-  const [result, setResult] = useState<EmailAnalysisSandboxOutput | null>(null)
-  const { toast } = useToast()
+const EmailAnalysisComponent: React.FC = () => {
+  const [emailId, setEmailId] = useState('');
+  const [advisorEmail, setAdvisorEmail] = useState('');
+  const [studentEmail, setStudentEmail] = useState('');
+  const [advisorResponse, setAdvisorResponse] = useState('');
+  const [analysisResult, setAnalysisResult] = useState<EmailAnalysisSandboxOutput | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleAnalyze = async () => {
-    if (!emailText.trim()) {
-      toast({
-        variant: "destructive",
-        title: "Missing Content",
-        description: "Please paste the email text you want to evaluate.",
-      })
-      return
-    }
-    
-    if (advisorCode.length !== 6) {
-      toast({
-        variant: "destructive",
-        title: "Invalid EmailID",
-        description: "Please enter a valid 6-digit EmailID for tracking purposes.",
-      })
-      return
+  const handleAnalysis = async () => {
+    if (!emailId || !advisorEmail || !studentEmail || !advisorResponse) {
+      setError('Please fill in all fields.');
+      return;
     }
 
-    setLoading(true)
-    setResult(null)
-    
+    if (!/^\d{6}$/.test(emailId)) {
+      setError('EmailID must be a 6-digit number.');
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
     try {
-      const output = await emailAnalysisSandbox({ emailText, advisorCode })
-      setResult(output)
+      const combinedEmailText = `STUDENT EMAIL THREAD:\n${studentEmail}\n\n---\n\nADVISOR'S RESPONSE:\n${advisorResponse}`;
 
-      toast({
-        title: "Evaluation Complete",
-        description: `Audit for EmailID #${advisorCode} has been logged.`,
-      })
-    } catch (error: any) {
-      console.error("Analysis failed", error)
-      toast({
-        variant: "destructive",
-        title: "Evaluation Service Error",
-        description: error.message || "The AI service is currently unavailable. Please try again.",
-      })
-    } finally {
-      setLoading(false)
+      const result = await emailAnalysisSandbox({
+        emailText: combinedEmailText,
+        advisorCode: emailId,
+        advisorEmail: advisorEmail,
+      });
+      setAnalysisResult(result);
+    } catch (e: any) {
+      setError(e.message || 'An unexpected error occurred.');
     }
-  }
+    setIsLoading(false);
+  };
 
-  const getScoreColor = (score: number, max: number) => {
-    const percentage = (score / max) * 100
-    if (percentage >= 90) return "text-green-600 bg-green-50 border-green-100"
-    if (percentage >= 70) return "text-blue-600 bg-blue-50 border-blue-100"
-    if (percentage >= 50) return "text-yellow-600 bg-yellow-50 border-yellow-100"
-    return "text-red-600 bg-red-50 border-red-100"
-  }
-
-  const parametersList = result ? [
-    { label: "Polite Greeting", data: result.parameters.politeGreeting, icon: UserCheck },
-    { label: "Issue Recognition", data: result.parameters.issueRecognition, icon: FileText },
-    { label: "Structure", data: result.parameters.structure, icon: BookOpen },
-    { label: "Grammar/Tone", data: result.parameters.grammarToneEmpathy, icon: Heart, isFatal: true },
-    { label: "Resolution/Policy", data: result.parameters.correctResolution, icon: Scale, isFatal: true },
-    { label: "Next Steps", data: result.parameters.clearNextSteps, icon: ArrowRight },
-    { label: "Timelines", data: result.parameters.timelinesSet, icon: Clock },
-    { label: "Support Channel", data: result.parameters.supportChannel, icon: Send },
-    { label: "Closing/Signature", data: result.parameters.professionalClosing, icon: CheckCircle2 },
-    { label: "Confidence", data: result.parameters.confidenceAfterReading, icon: Sparkles },
-  ] : []
+  const isButtonDisabled =
+    isLoading ||
+    !emailId.trim() ||
+    !advisorEmail.trim() ||
+    !studentEmail.trim() ||
+    !advisorResponse.trim();
 
   return (
-    <div className="space-y-8 max-w-7xl mx-auto animate-in fade-in duration-700">
-      <div className="flex flex-col gap-2">
-        <h2 className="text-3xl font-bold tracking-tight text-primary">Email Sandbox</h2>
-        <p className="text-muted-foreground">Detailed 10-parameter AI evaluation for education advisor communications.</p>
+    <div className="p-4 space-y-6">
+      <div className="space-y-2">
+        <h2 className="text-2xl font-bold">Email Analysis Sandbox</h2>
+        <p className="text-muted-foreground">Paste advisor responses and get instant AI-powered quality checks.</p>
       </div>
 
-      <div className="grid gap-8 lg:grid-cols-5 items-start">
-        <Card className="lg:col-span-2 border-none shadow-lg overflow-hidden sticky top-24">
-          <CardHeader className="bg-primary/5 border-b space-y-4">
-            <div className="flex items-center gap-2">
-              <BookOpen className="h-5 w-5 text-accent" />
-              <CardTitle className="text-lg">Advisor Draft</CardTitle>
+      <Card className="border-none shadow-sm">
+        <CardContent className="pt-6 space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="emailId">EmailID</Label>
+              <Input
+                id="emailId"
+                value={emailId}
+                onChange={(e) => setEmailId(e.target.value)}
+                placeholder="# e.g. 110429"
+                maxLength={6}
+              />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="advisorCode" className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                Enter EmailID
-              </Label>
-              <div className="relative">
-                <Hash className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input 
-                  id="advisorCode"
-                  placeholder="# e.g. 110429"
-                  maxLength={6}
-                  className="pl-10 bg-white font-mono"
-                  value={advisorCode}
-                  onChange={(e) => setAdvisorCode(e.target.value.replace(/[^0-9]/g, ""))}
-                />
-              </div>
+              <Label htmlFor="advisorEmail">Advisor Email</Label>
+              <Input
+                id="advisorEmail"
+                type="email"
+                value={advisorEmail}
+                onChange={(e) => setAdvisorEmail(e.target.value)}
+                placeholder="advisor@example.com"
+              />
             </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="studentEmail">Student Email Thread</Label>
+              <Textarea
+                id="studentEmail"
+                value={studentEmail}
+                onChange={(e) => setStudentEmail(e.target.value)}
+                placeholder="Paste the student's email or thread here..."
+                rows={12}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="advisorResponse">Advisor's Response</Label>
+              <Textarea
+                id="advisorResponse"
+                value={advisorResponse}
+                onChange={(e) => setAdvisorResponse(e.target.value)}
+                placeholder="Paste the advisor's draft or response here..."
+                rows={12}
+              />
+            </div>
+          </div>
+
+          <Button 
+            onClick={handleAnalysis} 
+            disabled={isButtonDisabled} 
+            className="w-full md:w-auto"
+          >
+            {isLoading ? 'Analyzing...' : 'Generate Scorecard'}
+          </Button>
+        </CardContent>
+      </Card>
+
+      {error && <p className="text-red-500 font-medium">{error}</p>}
+
+      {analysisResult && (
+        <Card className="border-none shadow-md animate-in fade-in slide-in-from-bottom-2">
+          <CardHeader className="bg-muted/30 border-b">
+            <CardTitle>AI Audit Scorecard</CardTitle>
           </CardHeader>
-          <CardContent className="p-0">
-            <Textarea 
-              placeholder="Dear Student, I am writing to follow up on your recent application query..."
-              className="min-h-[400px] border-none focus-visible:ring-0 resize-none p-6 text-base leading-relaxed placeholder:text-muted-foreground/50"
-              value={emailText}
-              onChange={(e) => setEmailText(e.target.value)}
-            />
-            <div className="p-4 bg-muted/30 border-t flex flex-col gap-4">
-              <div className="flex justify-between items-center">
-                <p className="text-xs text-muted-foreground">Chars: {emailText.length}</p>
-                <Button 
-                  onClick={handleAnalyze} 
-                  disabled={loading || !emailText.trim() || advisorCode.length !== 6}
-                  className="bg-accent hover:bg-accent/90 transition-all font-semibold gap-2"
-                >
-                  {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-                  Run Full Audit
-                </Button>
-              </div>
+          <CardContent className="space-y-8 pt-6">
+            <div className="space-y-2">
+              <h4 className="font-bold text-sm uppercase text-muted-foreground tracking-widest">Overall Feedback</h4>
+              <p className="text-lg leading-relaxed">{analysisResult.overallFeedback}</p>
             </div>
+
+            <div className="flex flex-col gap-2">
+                <div className="flex items-center justify-between">
+                  <h4 className="font-bold text-sm uppercase text-muted-foreground tracking-widest">Total Performance</h4>
+                  <span className="text-2xl font-black text-primary">{analysisResult.totalScore}/100</span>
+                </div>
+                <Progress value={analysisResult.totalScore} className="h-3" />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {Object.entries(analysisResult.parameters).map(([key, value]) => (
+                <div key={key} className="p-4 rounded-xl bg-muted/20 border space-y-2">
+                  <h5 className="font-bold capitalize text-primary">{key.replace(/([A-Z])/g, ' $1')}</h5>
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="font-medium text-muted-foreground">Score</span>
+                    <span className="font-bold">{value.score} / {value.maxScore}</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground leading-snug italic">"{value.feedback}"</p>
+                </div>
+              ))}
+            </div>
+
+            {analysisResult.hasFatalError && (
+              <div className="p-4 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-center">
+                <p className="font-black text-sm uppercase tracking-widest">Fatal Error Detected</p>
+                <p className="text-xs mt-1">This communication fails critical policy or quality standards.</p>
+              </div>
+            )}
           </CardContent>
         </Card>
-
-        <div className="lg:col-span-3 space-y-6">
-          {!result && !loading && (
-            <Card className="border-dashed border-2 bg-muted/5 p-20 text-center h-[600px] flex flex-col justify-center items-center gap-4">
-              <div className="p-6 rounded-full bg-accent/10">
-                <FileText className="h-12 w-12 text-accent" />
-              </div>
-              <div className="space-y-2">
-                <h3 className="font-bold text-xl">Awaiting Content</h3>
-                <p className="text-sm text-muted-foreground max-w-[300px] mx-auto">
-                  Paste the email and enter the 6-digit EmailID to run the official 10-parameter AI rubric.
-                </p>
-              </div>
-            </Card>
-          )}
-
-          {loading && (
-            <Card className="border-none shadow-sm p-20 text-center h-[600px] flex flex-col justify-center items-center gap-6">
-              <div className="relative">
-                <Loader2 className="h-16 w-16 animate-spin text-accent" />
-                <Sparkles className="h-6 w-6 text-primary absolute -top-2 -right-2 animate-pulse" />
-              </div>
-              <div className="space-y-2">
-                <h3 className="font-bold text-xl">AI Audit in Progress...</h3>
-                <p className="text-sm text-muted-foreground">Verifying policy compliance for EmailID #{advisorCode}</p>
-              </div>
-            </Card>
-          )}
-
-          {result && !loading && (
-            <div className="space-y-6 animate-in slide-in-from-right-4 duration-500">
-              {result.hasFatalError && (
-                <div className="p-4 rounded-xl bg-destructive/10 border border-destructive/20 flex items-center gap-4 text-destructive">
-                  <AlertTriangle className="h-6 w-6 shrink-0" />
-                  <div>
-                    <p className="font-bold">FATAL Error Detected</p>
-                    <p className="text-sm opacity-90">Critical issues found in Grammar/Tone or Resolution for EmailID #{advisorCode}.</p>
-                  </div>
-                </div>
-              )}
-
-              <Card className="border-none shadow-xl overflow-hidden">
-                <CardHeader className="bg-primary text-white p-6">
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <CardTitle className="text-2xl font-black">Audit Results</CardTitle>
-                      <CardDescription className="text-primary-foreground/60">
-                        EmailID: {advisorCode}
-                      </CardDescription>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-4xl font-black text-accent">{result.totalScore}<span className="text-xl font-normal text-white/50">/100</span></p>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="p-0">
-                  <ScrollArea className="h-[600px]">
-                    <div className="p-6 space-y-4">
-                      {parametersList.map((param) => (
-                        <div key={param.label} className="p-4 rounded-xl border bg-white shadow-sm hover:shadow-md transition-all space-y-3">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                              <div className="p-2 rounded-lg bg-primary/5">
-                                <param.icon className="h-5 w-5 text-primary" />
-                              </div>
-                              <div className="flex flex-col">
-                                <div className="font-bold text-sm flex items-center gap-2">
-                                  {param.label}
-                                  {param.isFatal && (
-                                    <Badge variant="destructive" className="text-[10px] h-4 px-1.5 font-black uppercase">Fatal</Badge>
-                                  )}
-                                </div>
-                                <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Weight: {param.data.maxScore}</p>
-                              </div>
-                            </div>
-                            <Badge className={`font-black ${getScoreColor(param.data.score, param.data.maxScore)}`}>
-                              {param.data.score} / {param.data.maxScore}
-                            </Badge>
-                          </div>
-                          <Progress value={(param.data.score / param.data.maxScore) * 100} className="h-2" />
-                          <p className="text-xs text-muted-foreground leading-relaxed italic bg-muted/30 p-2 rounded">
-                            "{param.data.feedback}"
-                          </p>
-                        </div>
-                      ))}
-                    </div>
-                  </ScrollArea>
-                </CardContent>
-                <div className="p-6 bg-accent/5 border-t">
-                   <div className="flex items-center gap-2 text-primary mb-2">
-                    <Flag className="h-4 w-4" />
-                    <h4 className="font-bold text-sm">Strategic Insight</h4>
-                  </div>
-                  <p className="text-sm text-foreground/80 leading-relaxed italic">
-                    "{result.overallFeedback}"
-                  </p>
-                </div>
-              </Card>
-            </div>
-          )}
-        </div>
-      </div>
+      )}
     </div>
-  )
-}
+  );
+};
+
+export default EmailAnalysisComponent;

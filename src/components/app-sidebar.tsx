@@ -7,8 +7,6 @@ import { usePathname, useRouter } from "next/navigation"
 import { 
   LayoutDashboard, 
   SearchCode, 
-  BarChart3, 
-  UserCircle, 
   ShieldCheck,
   Mail,
   ClipboardCheck,
@@ -41,11 +39,6 @@ const items = [
     title: "Email Sandbox",
     url: "/dashboard/sandbox",
     icon: SearchCode,
-  },
-  {
-    title: "Advisor Portal",
-    url: "/dashboard/advisor",
-    icon: UserCircle,
   },
 ]
 
