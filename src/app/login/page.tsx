@@ -84,12 +84,7 @@ export default function LoginPage() {
           </form>
         </CardContent>
         <CardFooter className="flex flex-col">
-          <p className="mt-2 text-xs text-center text-gray-700">
-            {"Don't have an account? "}
-            <Link href="/signup" className=" text-blue-600 hover:underline">
-              Sign up
-            </Link>
-          </p>
+        
           <div className="mt-4">
             <Link href="/" className="text-sm text-blue-600 hover:underline flex items-center">
               <ArrowLeft className="h-4 w-4 mr-1" />

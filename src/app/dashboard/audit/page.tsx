@@ -7,6 +7,19 @@ import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
+
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+
 import { 
   ClipboardCheck, 
   ArrowRight, 
@@ -43,8 +56,10 @@ interface Audit {
   id: string;
   emailId: number;
   email: string;
+  advisorName: string;
+  department: "SST" | "SLU" | "IM";
   Summary: string;
-  totalscore: number;
+  totalScore: number;
   createdAt: Timestamp;
   hasFatalError: boolean;
   scores: {
@@ -79,6 +94,11 @@ export default function AuditDashboard() {
   const router = useRouter();
   const [audits, setAudits] = useState<Audit[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  const [showExportDialog, setShowExportDialog] = useState(false);
+const [fromDate, setFromDate] = useState("");
+const [toDate, setToDate] = useState("");
+const [department, setDepartment] = useState("All");
 
   const aggregateScores = PARAMETERS.reduce((acc, param) => ({
     ...acc,
@@ -121,25 +141,73 @@ export default function AuditDashboard() {
   }, []);
 
   const exportToCSV = () => {
-    if (audits.length === 0) return;
-    const headers = ["Email ID", "Email", "Total Score", "Created At", "Summary", ...PARAMETERS.map(p => p.label)];
-    const rows = audits.map((audit) => [
+    const filteredAudits = audits.filter((audit) => {
+      const auditDate = audit.createdAt?.toDate();
+  
+      if (!auditDate) return false;
+  
+      const from = fromDate ? new Date(fromDate) : null;
+      const to = toDate ? new Date(toDate) : null;
+  
+      // Include the full end date
+      if (to) {
+        to.setHours(23, 59, 59, 999);
+      }
+  
+      if (from && auditDate < from) return false;
+      if (to && auditDate > to) return false;
+      
+      // Filter by department
+      if (department !== "All" && audit.department !== department) {
+        return false;
+      }
+      
+      return true;
+    });
+  
+    if (filteredAudits.length === 0) {
+      alert("No audits found for the selected date range.");
+      return;
+    }
+  
+    const headers = [
+      "Email ID",
+      "Advisor Name",
+      "Total Score",
+      "Created At",
+      "Summary",
+      ...PARAMETERS.map((p) => p.label),
+    ];
+  
+    const rows = filteredAudits.map((audit) => [
       audit.emailId,
-      audit.email,
-      audit.totalscore,
+      audit.advisorName,
+      audit.totalScore,
       audit.createdAt?.toDate().toLocaleString(),
       audit.Summary,
-      ...PARAMETERS.map(p => audit.scores[p.key as keyof typeof audit.scores]?.score)
+      ...PARAMETERS.map(
+        (p) => audit.scores[p.key as keyof typeof audit.scores]?.score
+      ),
     ]);
-    const csvContent = [headers.join(","), ...rows.map(r => r.map(v => `"${v ?? ""}"`).join(","))].join("\n");
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  
+    const csvContent = [
+      headers.join(","),
+      ...rows.map((r) => r.map((v) => `"${v ?? ""}"`).join(",")),
+    ].join("\n");
+  
+    const blob = new Blob([csvContent], {
+      type: "text/csv;charset=utf-8;",
+    });
+  
     const url = URL.createObjectURL(blob);
+  
     const link = document.createElement("a");
     link.href = url;
-    link.download = `Audits_${new Date().toISOString().split('T')[0]}.csv`;
+    link.download = `Audits_${fromDate || "All"}_${toDate || "All"}.csv`;
     link.click();
+  
+    URL.revokeObjectURL(url);
   };
-
   return (
     <div className="space-y-8 animate-in fade-in duration-700">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
@@ -181,9 +249,15 @@ export default function AuditDashboard() {
         <CardHeader className="border-b bg-muted/20">
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg font-bold">Audit History</CardTitle>
-            <Button onClick={exportToCSV} variant="outline" size="sm" className="gap-2">
-              <Download className="h-4 w-4" /> Export CSV
-            </Button>
+            <Button
+  onClick={() => setShowExportDialog(true)}
+  variant="outline"
+  size="sm"
+  className="gap-2"
+>
+  <Download className="h-4 w-4" />
+  Export CSV
+</Button>
           </div>
         </CardHeader>
         <CardContent className="p-0">
@@ -199,13 +273,26 @@ export default function AuditDashboard() {
                   onClick={() => toggleAudit(audit.id)}
                 >
                   <div className="flex items-center gap-4">
-                    <div className={`h-10 w-10 rounded-full flex items-center justify-center font-bold text-sm ${audit.totalscore >= 80 ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
-                      {audit.totalscore}
+                    <div className={`h-10 w-10 rounded-full flex items-center justify-center font-bold text-sm ${audit.totalScore >= 80 ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
+                      {audit.totalScore}
                     </div>
                     <div>
-                      <p className="font-bold text-sm">{audit.email}</p>
-                      <p className="text-xs text-muted-foreground">EmailID: {audit.emailId} • {audit.createdAt?.toDate().toLocaleString()}</p>
-                    </div>
+  <p className="font-bold text-sm">{audit.email}</p>
+
+  <p className="text-sm text-muted-foreground">
+    Advisor: <span className="font-medium">{audit.advisorName || "Unknown"}</span>
+  </p>
+
+  <div className="flex items-center gap-2 mt-1">
+    <Badge variant="secondary">
+      {audit.department ?? "N/A"}
+    </Badge>
+  </div>
+
+  <p className="text-xs text-muted-foreground mt-1">
+    EmailID: {audit.emailId} • {audit.createdAt?.toDate().toLocaleString()}
+  </p>
+</div>
                   </div>
                   {expandedAudit === audit.id ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                 </div>
@@ -224,6 +311,15 @@ export default function AuditDashboard() {
                           ))}
                         </div>
                       </div>
+                      <div className="bg-white p-4 rounded-lg border">
+  <p className="text-xs font-semibold text-muted-foreground">
+    Department
+  </p>
+
+  <Badge className="mt-2">
+    {audit.department ?? "N/A"}
+  </Badge>
+</div>
                       <div className="space-y-4">
                         <h4 className="text-xs font-black uppercase tracking-widest text-primary/60">AI Summary</h4>
                         <div className="bg-white p-4 rounded-xl border shadow-sm italic text-sm leading-relaxed">
@@ -238,6 +334,73 @@ export default function AuditDashboard() {
           </div>
         </CardContent>
       </Card>
+      <Dialog
+        open={showExportDialog}
+        onOpenChange={setShowExportDialog}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Export Audit CSV</DialogTitle>
+            <DialogDescription>
+              Select the date range for the audits you want to export.
+            </DialogDescription>
+          </DialogHeader>
+
+        <div className="space-y-4 py-4">
+  <div>
+    <Label>From Date</Label>
+    <Input
+      type="date"
+      value={fromDate}
+      onChange={(e) => setFromDate(e.target.value)}
+    />
+  </div>
+
+  <div>
+    <Label>To Date</Label>
+    <Input
+      type="date"
+      value={toDate}
+      onChange={(e) => setToDate(e.target.value)}
+    />
+  </div>
+
+  <div>
+    <Label>Department</Label>
+
+    <select
+      value={department}
+      onChange={(e) => setDepartment(e.target.value)}
+      className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+    >
+      <option value="All">All Departments</option>
+      <option value="SST">SST</option>
+      <option value="SLU">SLU</option>
+      <option value="IM">IM</option>
+    </select>
+  </div>
+</div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowExportDialog(false)}
+            >
+              Cancel
+            </Button>
+
+            <Button
+              onClick={() => {
+                exportToCSV();
+                setShowExportDialog(false);
+              }}
+            >
+              Export CSV
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
     </div>
   )
 }

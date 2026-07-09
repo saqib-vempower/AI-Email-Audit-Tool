@@ -3,6 +3,7 @@
 
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card"
 import { 
   Mail, 
@@ -77,14 +78,38 @@ export default function LandingPage() {
               <span>AI-Powered Quality Assurance</span>
             </div>
             
-            <h1 className="text-6xl lg:text-8xl font-black tracking-tighter text-primary leading-[0.9] animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-100">
-              Perfect Every <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">Email Analysis.</span>
-            </h1>
-            
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-200">
-              The only automated evaluation platform built for education advisors. Ensure institutional policy compliance, empathy, and accuracy in every interaction.
-            </p>
+            <motion.div
+  initial={{ opacity: 0, y: 60 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{
+    duration: 0.8,
+    ease: "easeOut",
+    staggerChildren: 0.2,
+  }}
+>
+  <motion.h1
+    initial={{ opacity: 0, y: 40 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.8 }}
+    className="text-6xl lg:text-8xl font-black tracking-tighter text-primary leading-[0.9]"
+  >
+    Perfect Every <br />
+    <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">
+      Email Analysis.
+    </span>
+  </motion.h1>
+
+  <motion.p
+    initial={{ opacity: 0, y: 40 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ delay: 0.3, duration: 0.8 }}
+    className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed mt-8"
+  >
+    The only automated evaluation platform built for education advisors.
+    Ensure institutional policy compliance, empathy, and accuracy in every
+    interaction.
+  </motion.p>
+</motion.div>
 
             {/* Rubric Section */}
             <div id="rubric" className="pt-24 max-w-6xl mx-auto animate-in fade-in zoom-in-95 duration-1000 delay-500">
@@ -239,7 +264,9 @@ export default function LandingPage() {
           <div className="space-y-4">
             <h4 className="font-bold text-primary">Legal</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li><Link href="#" className="hover:text-accent">Privacy Policy</Link></li>
+              <li><Link href="/privacy" className="hover:text-accent">
+  Privacy Policy
+</Link></li>
               <li><Link href="#" className="hover:text-accent">Terms of Service</Link></li>
               <li><Link href="#" className="hover:text-accent">Institutional Statement</Link></li>
             </ul>
@@ -247,7 +274,7 @@ export default function LandingPage() {
         </div>
         <div className="max-w-7xl mx-auto mt-20 pt-8 border-t flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm text-muted-foreground">
-            © 2024 EduMail QA. All rights reserved.
+            © 2026 Excelerate. All rights reserved.
           </p>
           <div className="flex items-center gap-6 text-sm text-muted-foreground">
             <Link href="#" className="hover:text-primary transition-colors flex items-center gap-1.5"><Globe className="h-4 w-4" /> English (US)</Link>
