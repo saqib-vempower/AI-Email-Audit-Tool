@@ -258,7 +258,7 @@ export default function LandingPage() {
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li><Link href="#features" className="hover:text-accent">Features</Link></li>
               <li><Link href="#rubric" className="hover:text-accent">Rubric</Link></li>
-              <li><Link href="#" className="hover:text-accent">Compliance</Link></li>
+              <li><Link href="/compliance" className="hover:text-accent">Compliance</Link></li>
             </ul>
           </div>
           <div className="space-y-4">
@@ -267,7 +267,7 @@ export default function LandingPage() {
               <li><Link href="/privacy" className="hover:text-accent">
   Privacy Policy
 </Link></li>
-              <li><Link href="#" className="hover:text-accent">Terms of Service</Link></li>
+              <li><Link href="/terms-of-service" className="hover:text-accent">Terms of Service</Link></li>
               <li><Link href="#" className="hover:text-accent">Institutional Statement</Link></li>
             </ul>
           </div>
