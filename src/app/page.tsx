@@ -268,7 +268,7 @@ export default function LandingPage() {
   Privacy Policy
 </Link></li>
               <li><Link href="/terms-of-service" className="hover:text-accent">Terms of Service</Link></li>
-              <li><Link href="#" className="hover:text-accent">Institutional Statement</Link></li>
+              <li><Link href="#" className="hP5@qEa6u9QhxERmover:text-accent">Institutional Statement</Link></li>
             </ul>
           </div>
         </div>
