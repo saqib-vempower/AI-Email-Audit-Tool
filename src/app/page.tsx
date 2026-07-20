@@ -105,9 +105,7 @@ export default function LandingPage() {
     transition={{ delay: 0.3, duration: 0.8 }}
     className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed mt-8"
   >
-    The only automated evaluation platform built for education advisors.
-    Ensure institutional policy compliance, empathy, and accuracy in every
-    interaction.
+   The intelligent quality assurance platform that evaluates every advisor email against compliance, communication, and service excellence standards.
   </motion.p>
 </motion.div>
 
@@ -268,7 +266,7 @@ export default function LandingPage() {
   Privacy Policy
 </Link></li>
               <li><Link href="/terms-of-service" className="hover:text-accent">Terms of Service</Link></li>
-              <li><Link href="#" className="hP5@qEa6u9QhxERmover:text-accent">Institutional Statement</Link></li>
+             
             </ul>
           </div>
         </div>
