@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState } from 'react';
@@ -29,10 +28,12 @@ const EmailAnalysisComponent: React.FC = () => {
   
   const [inputMethod, setInputMethod] = useState("ticket");
   
-  const [analysisResult, setAnalysisResult] = useState<EmailAnalysisSandboxOutput | null>(null);
+  const [analysisResults, setAnalysisResults] =
+useState<EmailAnalysisSandboxOutput[]>([]);
   
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [selectedImages, setSelectedImages] =
+useState<File[]>([]);
   
   const [error, setError] = useState<string | null>(null);
   const loadTicket = async () => {
@@ -73,80 +74,97 @@ const EmailAnalysisComponent: React.FC = () => {
     setError(null);
   
     try {
-      let combinedEmailText = "";
-  
-      // -----------------------------
+      // =============================
       // Freshdesk Ticket
-      // -----------------------------
+      // =============================
       if (inputMethod === "ticket") {
         if (!ticketData) {
           throw new Error("Please load a ticket first.");
         }
   
-        combinedEmailText = `
+        const combinedEmailText = `
   STUDENT EMAIL THREAD:
   ${ticketData.studentEmail}
   
   ADVISOR'S RESPONSE:
   ${ticketData.advisorResponse}
   `;
+  
+        const result = await emailAnalysisSandbox({
+          emailText: combinedEmailText,
+          advisorCode: ticketId || "0",
+          department,
+        });
+  
+        setAnalysisResults([result]);
       }
   
-      // -----------------------------
+      // =============================
       // Paste Emails
-      // -----------------------------
+      // =============================
       else if (inputMethod === "paste") {
         if (!ticketData?.studentEmail || !ticketData?.advisorResponse) {
           throw new Error("Please paste both emails.");
         }
   
-        combinedEmailText = `
+        const combinedEmailText = `
   STUDENT EMAIL THREAD:
   ${ticketData.studentEmail}
   
   ADVISOR'S RESPONSE:
   ${ticketData.advisorResponse}
   `;
-      }
   
-      // -----------------------------
-      // Upload Screenshot
-      // -----------------------------
-      else if (inputMethod === "image") {
-        if (!selectedImage) {
-          throw new Error("Please upload an image.");
-        }
-  
-        const formData = new FormData();
-        formData.append("image", selectedImage);
-  
-        const response = await fetch("/api/extract-email", {
-          method: "POST",
-          body: formData,
+        const result = await emailAnalysisSandbox({
+          emailText: combinedEmailText,
+          advisorCode: ticketId || "0",
+          department,
         });
   
-        if (!response.ok) {
-          throw new Error("Failed to extract email from screenshot.");
-        }
-  
-        const extracted = await response.json();
-  
-        combinedEmailText = extracted.emailText;
+        setAnalysisResults([result]);
       }
   
-      // -----------------------------
-      // Run AI Evaluation
-      // -----------------------------
-      const result = await emailAnalysisSandbox({
-        emailText: combinedEmailText,
-        advisorCode: ticketId || "0",
-        department,
-      });
+      // =============================
+      // Upload Multiple Screenshots
+      // =============================
+      else if (inputMethod === "image") {
+        if (selectedImages.length === 0) {
+          throw new Error("Please upload at least one screenshot.");
+        }
   
-      setAnalysisResult(result);
+        setAnalysisResults([]);
   
-    } catch (e: any) {
-      setError(e.message || "An unexpected error occurred.");
+        const results: EmailAnalysisSandboxOutput[] = [];
+  
+        for (const image of selectedImages) {
+          const formData = new FormData();
+          formData.append("image", image);
+  
+          const response = await fetch("/api/extract-email", {
+            method: "POST",
+            body: formData,
+          });
+  
+          if (!response.ok) {
+            throw new Error("Failed to extract email.");
+          }
+  
+          const extracted = await response.json();
+  
+          const result = await emailAnalysisSandbox({
+            emailText: extracted.emailText,
+            advisorCode: ticketId || "0",
+            department,
+          });
+  
+          results.push(result);
+  
+          // Optional: show each scorecard immediately
+          setAnalysisResults([...results]);
+        }
+      }
+    } catch (err: any) {
+      setError(err.message || "An unexpected error occurred.");
     } finally {
       setIsLoading(false);
     }
@@ -162,8 +180,8 @@ const EmailAnalysisComponent: React.FC = () => {
     (!ticketData?.studentEmail || !ticketData?.advisorResponse)
   ) ||
   (
-    inputMethod === "image" &&
-    !selectedImage
+    inputMethod==="image" &&
+selectedImages.length===0
   );
    
     
@@ -295,19 +313,15 @@ advisorResponse:e.target.value
     <Label htmlFor="emailScreenshot">Upload Screenshot</Label>
 
     <Input
-      id="emailScreenshot"
-      type="file"
-      accept="image/*"
-      className="h-10 text-sm"
-      onChange={(e) => {
-        const file = e.target.files?.[0];
-      
-        if (file) {
-          setSelectedImage(file);
-          console.log("Selected screenshot:", file);
-        }
-      }}
-    />
+  type="file"
+  accept="image/*"
+  multiple
+  onChange={(e)=>{
+      if(e.target.files){
+          setSelectedImages(Array.from(e.target.files));
+      }
+  }}
+/>
 
     <p className="text-sm text-muted-foreground">
       Upload a screenshot of the email conversation for AI analysis.
@@ -329,8 +343,8 @@ advisorResponse:e.target.value
 
       {error && <p className="text-red-500 font-medium">{error}</p>}
 
-      {analysisResult && (
-        <Card className="border-none shadow-md animate-in fade-in slide-in-from-bottom-2">
+      {analysisResults.map((analysisResult,index)=>(
+        <Card className="border-none shadow-md animate-in fade-in slide-in-from-bottom-2" key={index}>
           <CardHeader className="bg-muted/30 border-b">
   <CardTitle>AI Audit Scorecard</CardTitle>
 
@@ -393,7 +407,7 @@ advisorResponse:e.target.value
             )}
           </CardContent>
         </Card>
-      )}
+      ))}
     </div>
   );
 };
