@@ -1,0 +1,15 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Allow read/write access to the 'audits' collection
+    // for any authenticated user.
+    match /audits/{auditId} {
+      allow read, write: if request.auth != null;
+    }
+
+    // You might have other rules here.
+    // Make sure to only add or update the section for 'audits'.
+  }
+}
+
+

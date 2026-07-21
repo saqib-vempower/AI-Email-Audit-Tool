@@ -39,6 +39,8 @@ export async function POST(req: NextRequest) {
     }
 
     const ticket = await ticketResponse.json();
+    console.log("Ticket:", ticket);
+
 
     // Fetch conversations
     const conversationResponse = await fetch(
@@ -53,6 +55,8 @@ export async function POST(req: NextRequest) {
     );
 
     const conversations = await conversationResponse.json();
+    console.log("Conversations:", conversations);
+
 
     let studentEmail =
   ticket.description_text ||
