@@ -57,15 +57,22 @@ useState<File[]>([]);
       });
   
       if (!response.ok) {
-        throw new Error("Ticket not found");
+        throw new Error("Failed to load ticket. Please try again later.");
       }
   
       const data = await response.json();
   
       setTicketData(data);
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
+    }catch (err: any) {
+      console.error(err);
+    
+      if (err.message === "Ticket not found") {
+        setError("Invalid Ticket ID.");
+      } else {
+        setError("Failed to load ticket. Please try again later.");
+      }
+    }
+     finally {
       setIsLoading(false);
     }
   };
@@ -164,7 +171,22 @@ useState<File[]>([]);
         }
       }
     } catch (err: any) {
-      setError(err.message || "An unexpected error occurred.");
+      console.error(err);
+    
+      const errorMessage = err?.message || "";
+    
+      if (
+        errorMessage.includes("503") ||
+        errorMessage.includes("overloaded") ||
+        errorMessage.includes("high load") ||
+        errorMessage.includes("Service Unavailable")
+      ) {
+        setError(
+          "The AI service is currently experiencing high demand. Please wait a few moments and try again."
+        );
+      } else {
+        setError("Something went wrong while analyzing the email. Please try again.");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -341,7 +363,11 @@ advisorResponse:e.target.value
         </CardContent>
       </Card>
 
-      {error && <p className="text-red-500 font-medium">{error}</p>}
+      {error && (
+  <div className="rounded-md border border-red-300 bg-red-50 p-3 text-red-700 font-medium">
+    {error}
+  </div>
+)}
 
       {analysisResults.map((analysisResult,index)=>(
         <Card className="border-none shadow-md animate-in fade-in slide-in-from-bottom-2" key={index}>
